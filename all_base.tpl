@@ -350,7 +350,7 @@ FastL=select, direct, img-url=https://raw.githubusercontent.com/Orz-3/mini/maste
 FREE=select, direct, img-url=https://raw.githubusercontent.com/Orz-3/mini/master/Alpha/Team.png
 
 [Rule]
-rule = https://raw.githubusercontent.com/heicat1337/sub/refs/heads/main/%2Brules.txt
+
 [Remote Rule]
 
 [Rewrite]
