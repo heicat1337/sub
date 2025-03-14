@@ -21,9 +21,9 @@ GlobalGameDownload`select`[]Other Games`[]MinorHK 🇭🇰`[]DIRECT`[]HomeBroadb
 PrivateTracker`select`[]DIRECT`[]HomeBroadband`[]Other Games`[]Major`[]Minor
 SougouInput`select`[]REJECT`[]DIRECT
 Hijacking`select`[]REJECT`[]DIRECT
-Major`select`!!GROUPID=0!!^.*(Asia|Africa|America|Europe|Oceania|Antarctica).*$
-Minor`url-test`!!GROUPID=1!!^.*(Asia|Africa|America|Europe|Oceania|Antarctica).*$`http://connectivitycheck.gstatic.com`60,,20
-HomeBroadband`url-test`!!GROUPID=2!!^.*(Asia|Africa|America|Europe|Oceania|Antarctica).*$`http://connectivitycheck.gstatic.com`60,,20
+Major`select`^.*Major.*$
+Minor`url-test`^.*Minor.*$`http://connectivitycheck.gstatic.com`60,,20
+HomeBroadband`url-test`^.*HomeBroadband.*$`http://connectivitycheck.gstatic.com`60,,20
 AutoHK 🇭🇰`fallback`[]MajorHK 🇭🇰`[]MinorHK 🇭🇰`http://cp.cloudflare.com/generate_204`60,,20
 MajorHK 🇭🇰`url-test`!!GROUPID=0!!.*香港.*$`[]REJECT`http://cp.cloudflare.com/generate_204`60,,20
 MinorHK 🇭🇰`url-test`!!GROUPID=1!!.*香港.*$`[]REJECT`http://cp.cloudflare.com/generate_204`60,,20
