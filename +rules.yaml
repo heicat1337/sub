@@ -1,4 +1,3 @@
-+rules:
   - DOMAIN-SUFFIX,www.cubecloud.net,B1gProxy
   - DOMAIN-SUFFIX,ascii2d.net,B1gProxy
   - DOMAIN-SUFFIX,didisjhs.com,B1gProxy
