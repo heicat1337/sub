@@ -20,9 +20,9 @@ GlobalGameDownload`select`[]Other Games`[]MinorHK 🇭🇰`[]DIRECT`[]HomeBroadb
 PrivateTracker`select`[]DIRECT`[]HomeBroadband`[]Other Games`[]Major`[]Minor
 SougouInput`select`[]REJECT`[]DIRECT
 Hijacking`select`[]REJECT`[]DIRECT
-Major`url-test`!!GROUPID=0!!^.*(Asia|Africa|America|Europe|Oceania|Antarctica).*$
-Minor`url-test`!!GROUPID=1!!^.*(Asia|Africa|America|Europe|Oceania|Antarctica).*$
-HomeBroadband`select`!!GROUPID=2!!^.*(Asia|Africa|America|Europe|Oceania|Antarctica).*$
+Major`url-test`!!GROUPID=0!!^.*(Asia|Africa|America|Europe|Oceania|Antarctica).*$`http://connectivitycheck.gstatic.com`60,,20
+Minor`url-test`!!GROUPID=1!!^.*(Asia|Africa|America|Europe|Oceania|Antarctica).*$`http://connectivitycheck.gstatic.com`60,,20
+HomeBroadband`url-test`!!GROUPID=2!!^.*(Asia|Africa|America|Europe|Oceania|Antarctica).*$`http://connectivitycheck.gstatic.com`60,,20
 MajorHK 🇭🇰`url-test`!!GROUPID=0!!.*香港.*$`Antarctica`http://connectivitycheck.gstatic.com`60,,20
 MinorHK 🇭🇰`url-test`!!GROUPID=1!!.*香港.*$`Antarctica`http://connectivitycheck.gstatic.com`60,,20
 MajorTW 🇨🇳`url-test`!!GROUPID=0!!.*台湾.*$`Antarctica`http://connectivitycheck.gstatic.com`60,,20
