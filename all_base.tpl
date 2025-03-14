@@ -351,12 +351,7 @@ FastL=select, direct, img-url=https://raw.githubusercontent.com/Orz-3/mini/maste
 FREE=select, direct, img-url=https://raw.githubusercontent.com/Orz-3/mini/master/Alpha/Team.png
 
 [Rule]
-  - DOMAIN-SUFFIX,www.cubecloud.net,B1gProxy
-  - DOMAIN-SUFFIX,ascii2d.net,B1gProxy
-  - DOMAIN-SUFFIX,didisjhs.com,B1gProxy
-  - DOMAIN-SUFFIX,iproyal.cn,B1gProxy
-  - DOMAIN-SUFFIX,www.touchgal.io,B1gProxy
-  - DOMAIN-SUFFIX,screen-skin.com,B1gProxy
+
 [Remote Rule]
 
 [Rewrite]
