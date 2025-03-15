@@ -1,5 +1,5 @@
 B1gProxy`select`[]ALL`[]DIRECT
-CaseFarm`select`[]ALL`[]DIRECT
+CaseFarm`select`[]AutoHK`[]AutoTW`[]AutoKR`[]AutoJP`[]AutoSG`[]AutoAU`[]AutoRU`[]AutoEU`[]AutoCA`[]AutoNA`[]DIRECT
 ALL`url-test`!!GROUPID=0!!^.*(Asia|Africa|America|Europe|Oceania|Antarctica).*$`http://cp.cloudflare.com/generate_204`60,,20
 AutoHK 🇭🇰`url-test`!!GROUPID=0!!.*香港.*$`[]REJECT`http://cp.cloudflare.com/generate_204`60,,20
 AutoTW 🇨🇳`url-test`!!GROUPID=0!!.*台湾.*$`[]REJECT`http://cp.cloudflare.com/generate_204`60,,20
