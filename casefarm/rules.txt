@@ -1,4 +1,4 @@
-Casefarm,https://raw.githubusercontent.com/heicat1337/sub/refs/heads/main/casefarm/steam.txt
+CaseFarm,https://raw.githubusercontent.com/heicat1337/sub/refs/heads/main/casefarm/steam.txt
 B1gProxy,https://ruleset.skk.moe/List/non_ip/telegram.conf
 B1gProxy,https://ruleset.skk.moe/List/ip/telegram.conf
 B1gProxy,https://raw.githubusercontent.com/heicat1337/sub/refs/heads/main/%2Brules.txt
