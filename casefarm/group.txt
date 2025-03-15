@@ -1,3 +1,3 @@
-B1gProxy`select`[]Major`[]DIRECT
-CaseFarm`select`[]Major`[]DIRECT
+B1gProxy`select`[]ALL`[]DIRECT
+CaseFarm`select`[]ALL`[]DIRECT
 ALL`url-test`!!GROUPID=0!!^.*(Asia|Africa|America|Europe|Oceania|Antarctica).*$`http://cp.cloudflare.com/generate_204`60,,20
