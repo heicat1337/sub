@@ -1,8 +1,8 @@
 B1gProxy`select`[]ALL`[]DIRECT
 CaseFarm`select`[]AutoHK 🇭🇰`[]AutoTW 🇨🇳`[]AutoKR 🇰🇷`[]AutoJP 🇯🇵`[]AutoSG 🇸🇬`[]DIRECT
 ALL`url-test`!!GROUPID=0!!^.*(Asia|Africa|America|Europe|Oceania|Antarctica).*$`http://cp.cloudflare.com/generate_204`60,,20
-AutoHK 🇭🇰`load-balance`!!GROUPID=0!!.*香港.*$`[]REJECT`http://cp.cloudflare.com/generate_204`30,,10
-AutoTW 🇨🇳`load-balance`!!GROUPID=0!!.*台湾.*$`[]REJECT`http://cp.cloudflare.com/generate_204`30,,10
-AutoKR 🇰🇷`load-balance`!!GROUPID=0!!.*韩国.*$`[]REJECT`http://cp.cloudflare.com/generate_204`30,,10
-AutoJP 🇯🇵`load-balance`!!GROUPID=0!!.*日本.*$`[]REJECT`http://cp.cloudflare.com/generate_204`30,,10
-AutoSG 🇸🇬`load-balance`!!GROUPID=0!!.*新加坡.*$`[]REJECT`http://cp.cloudflare.com/generate_204`30,,10
+AutoHK 🇭🇰`load-balance`!!GROUPID=0!!.*香港.*$`http://cp.cloudflare.com/generate_204`30,,10
+AutoTW 🇨🇳`load-balance`!!GROUPID=0!!.*台湾.*$`http://cp.cloudflare.com/generate_204`30,,10
+AutoKR 🇰🇷`load-balance`!!GROUPID=0!!.*韩国.*$`http://cp.cloudflare.com/generate_204`30,,10
+AutoJP 🇯🇵`load-balance`!!GROUPID=0!!.*日本.*$`http://cp.cloudflare.com/generate_204`30,,10
+AutoSG 🇸🇬`load-balance`!!GROUPID=0!!.*新加坡.*$`http://cp.cloudflare.com/generate_204`30,,10
