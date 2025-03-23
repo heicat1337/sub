@@ -6,3 +6,4 @@ DOMAIN-SUFFIX,docker.com
 DOMAIN-SUFFIX,debian.org
 DOMAIN-SUFFIX,ubuntu.com
 DOMAIN-SUFFIX,githubusercontent.com
+PROCESS-NAME,Standard.Desktop.exe
