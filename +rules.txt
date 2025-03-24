@@ -5,3 +5,5 @@ DOMAIN-SUFFIX,iproyal.cn
 DOMAIN-SUFFIX,touchgal.io
 DOMAIN-SUFFIX,screen-skin.com
 DOMAIN-SUFFIX,emo.top
+DOMAIN-SUFFIX,githubusercontent.com
+DOMAIN-SUFFIX,github.com
