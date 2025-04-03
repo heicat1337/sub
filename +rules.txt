@@ -7,4 +7,4 @@ DOMAIN-SUFFIX,screen-skin.com
 DOMAIN-SUFFIX,emo.top
 DOMAIN-SUFFIX,githubusercontent.com
 DOMAIN-SUFFIX,github.com
-DOMAIN-SUFFIX,web.archive.org
+DOMAIN-SUFFIX,archive.org
