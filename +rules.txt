@@ -9,3 +9,4 @@ DOMAIN-SUFFIX,githubusercontent.com
 DOMAIN-SUFFIX,github.com
 DOMAIN-SUFFIX,archive.org
 DOMAIN-SUFFIX,digitaloceanspaces.com
+DOMAIN-SUFFIX,csgotrader.app
