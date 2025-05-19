@@ -11,3 +11,4 @@ DOMAIN-SUFFIX,archive.org
 DOMAIN-SUFFIX,digitaloceanspaces.com
 DOMAIN-SUFFIX,csgotrader.app
 DOMAIN-SUFFIX,bymykel.com
+DOMAIN-SUFFIX,iprocket.io
