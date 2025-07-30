@@ -229,3 +229,4 @@ DOMAIN,cmp2-hkg1.steamserver.net
 DOMAIN,cmp1-atl3.steamserver.net
 DOMAIN,cmp2-dfw1.steamserver.net
 DOMAIN,cmp2-sgp1.steamserver.net
+PROCESS-NAME,steam.exe
