@@ -1,4 +1,5 @@
 Crypto,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/refs/heads/master/Clash/Ruleset/Crypto.list
+Crypto,https://raw.githubusercontent.com/heicat1337/sub/refs/heads/main/Crypto.list
 B1gProxy,https://raw.githubusercontent.com/heicat1337/sub/refs/heads/main/%2Brules.txt
 B1gProxy,https://raw.githubusercontent.com/heicat1337/sub/refs/heads/main/casefarm/process.list
 Hax,https://raw.githubusercontent.com/Suyu6/sub/master/rules/Hax.list
