@@ -35,4 +35,5 @@ DIRECT,https://raw.githubusercontent.com/Suyu6/sub/master/rules/Unbreak.list
 DIRECT,https://raw.githubusercontent.com/Loyalsoldier/surge-rules/release/ruleset/icloud.txt
 DIRECT,https://raw.githubusercontent.com/Loyalsoldier/surge-rules/release/ruleset/apple.txt
 DIRECT,https://raw.githubusercontent.com/Suyu6/sub/master/rules/DirectFix.list
+DIRECT,https://raw.githubusercontent.com/heicat1337/sub/refs/heads/main/process.list
 Other Games,[]FINAL
