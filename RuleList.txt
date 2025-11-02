@@ -18,6 +18,7 @@ Netflix,https://raw.githubusercontent.com/dler-io/Rules/main/Surge/Surge%203/Pro
 GlobalMedia,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ProxyMedia.list
 Telegram,https://ruleset.skk.moe/List/non_ip/telegram.conf
 Telegram,https://ruleset.skk.moe/List/ip/telegram.conf
+Discord,https://raw.githubusercontent.com/dler-io/Rules/refs/heads/main/Clash/Provider/Discord.yaml
 Discord,https://raw.githubusercontent.com/Suyu6/sub/master/rules/Discord_voice_ip.list
 Hijacking,https://raw.githubusercontent.com/Suyu6/sub/master/rules/rejectFix.list
 SougouInput,https://ruleset.skk.moe/List/non_ip/sogouinput.conf
