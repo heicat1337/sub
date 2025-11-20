@@ -308,12 +308,27 @@ dns:
 
 {% if local.clash.new_field_name == "true" %}
 proxies: ~
+  # 保留所有自定义字段，包括 dialer-proxy
+  {% for proxy in proxies %}
+  - name: "{{ proxy.name }}"
+    type: {{ proxy.type }}
+    server: "{{ proxy.server }}"
+    port: {{ proxy.port }}
+    {% if proxy.dialer-proxy %}
+    dialer-proxy: "{{ proxy.dialer-proxy }}"
+    {% endif %}
+    {% if proxy.dialer_proxy %}
+    dialer-proxy: "{{ proxy.dialer_proxy }}"
+    {% endif %}
+    # 其他字段...
+    {% for key, value in proxy.items() %}
+    {% if key not in ['name', 'type', 'server', 'port'] and key.startswith('dialer') %}
+    {{ key }}: "{{ value }}"
+    {% endif %}
+    {% endfor %}
+  {% endfor %}
 proxy-groups: ~
 rules: ~
-{% else %}
-Proxy: ~
-Proxy Group: ~
-Rule: ~
 {% endif %}
 
 {% endif %}
