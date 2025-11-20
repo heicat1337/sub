@@ -1,15 +1,12 @@
 {% if request.target == "clash" or request.target == "clashr" %}
 
-port: {{ default(global.clash.http_port, "7890") }}
-socks-port: {{ default(global.clash.socks_port, "7891") }}
+mixed-port: {{ default(global.clash.http_port, "7890") }}
 allow-lan: {{ default(global.clash.allow_lan, "true") }}
-mode: Rule
+mode: rule
 log-level: {{ default(global.clash.log_level, "info") }}
 external-controller: :9090
 experimental:
   ignore-resolve-fail: true
-clash-for-android:
-  ui-subtitle-pattern: '[一-龥]{2,4}'
 {% if exists("request.tun") %}
   {% if request.tun == "windows" %}
 script:
@@ -25,16 +22,18 @@ script:
     Mail: dst_port in [465, 993, 995] and geoip(dst_ip) != 'CN'
 tun:
   enable: true
-  stack: gvisor
+  stack: mixed
   dns-hijack:
     - any:53
   auto-route: true
   auto-detect-interface: true
   {% else %}
     {% if request.tun == "open" %}
+clash-for-android:
+  ui-subtitle-pattern: '[一-龥]{2,4}'
 tun:
   enable: true
-  stack: system
+  stack: mixed
   dns-hijack:
     - tcp://any:53
   auto-route: false
@@ -60,6 +59,22 @@ tun:
   {% endif %}
 {% endif %}
 
+listeners:
+- name: ss-2022-in
+  type: shadowsocks
+  port: 8888
+  listen: 0.0.0.0
+  cipher: 2022-blake3-aes-128-gcm
+  password: ebhPeDlnQ+ZlLBhaWzptVA==
+  udp: true
+- name: ss-in
+  type: shadowsocks
+  port: 8889
+  listen: 0.0.0.0
+  cipher: rc4-md5
+  password: 9GP35MZ48B2AEW
+  udp: true
+
 {% if exists("request.dns") %}
   {% if request.dns == "fake" %}
 dns:
@@ -81,6 +96,8 @@ dns:
     - '+.local'
     - localhost.ptlogin2.qq.com
     - '+.nip.io'
+    - '+.market.xiaomi.com'
+    - ntp.ntsc.ac.cn
     ## Windows
     - dns.msftncsi.com
     - www.msftncsi.com
@@ -123,6 +140,8 @@ dns:
     - '+.pubg.com'
     - 'pubg1.battleye.com'
     - 'battlenet.com.cn'
+    ## pve
+    - '+.proxmox.com'
   nameserver-policy:
     'raw.githubusercontent.com': '8.8.8.8'
     '+.meiquankongjian.com': '8.8.8.8'
@@ -131,6 +150,130 @@ dns:
     '+.ptrecord.com': '8.8.8.8'
     '+.bing.cn': '1.1.1.1'
     '+.bing.com': '1.1.1.1'
+
+    # > Modify Contents
+    'blog.google': '119.29.29.29' # Google Blog
+    'googletraveladservices.com': '119.29.29.29' # Google Flights
+    'dl.google.com': '119.29.29.29' # Google Download
+    'dl.l.google.com': '119.29.29.29' # Google Download
+    'clientservices.googleapis.com': '119.29.29.29' # Google Chrome
+    'update.googleapis.com': '119.29.29.29' # Google Update
+    'translate.googleapis.com': '119.29.29.29' # Google Translate
+    'fonts.googleapis.com': '119.29.29.29' # Google Fonts
+    'fonts.gstatic.com': '119.29.29.29' # Google Fonts
+
+    # > Apple
+    # refer: https://support.apple.com/zh-cn/HT210060
+    'networking.apple': 'https://doh.dns.apple.com/dns-query' # Apple
+    '+.icloud.com': 'https://doh.dns.apple.com/dns-query' # iCloud.com
+
+    # > 百度
+    # refer: https://dudns.baidu.com/support/localdns/Address/index.html
+    '+.baidu': '180.76.76.76' # 百度
+    '+.baidu.com': '180.76.76.76' # 百度
+    '+.bdimg.com': '180.76.76.76' # 百度 静态资源
+    '+.bdstatic.com': '180.76.76.76' # 百度 静态资源
+    '+.baidupcs.*': '180.76.76.76' # 百度网盘
+    '+.baiduyuncdn.*': '180.76.76.76' # 百度云CDN
+    '+.baiduyundns.*': '180.76.76.76' # 百度云DNS
+    '+.bdydns.*': '180.76.76.76' # 百度云 DNS
+    '+.bdycdn.*': '180.76.76.76' # 百度云 CDN
+    '+.bdysite.com': '180.76.76.76' # 百度云 域名
+    '+.bdysites.com': '180.76.76.76' # 百度云 域名
+    '+.baidubce.*': '180.76.76.76' # 百度智能云
+    '+.bcedns.*': '180.76.76.76' # 百度智能云 DNS
+    '+.bcebos.com': '180.76.76.76' # 百度智能云 对象存储BOS
+    '+.bcevod.com': '180.76.76.76' # 百度智能云 播放器服务
+    '+.bceimg.com': '180.76.76.76' # 百度智能云 图片服务
+    '+.bcehost.com': '180.76.76.76' # 百度智能云 主机
+    '+.bcehosts.com': '180.76.76.76' # 百度智能云 主机
+    'dwz.cn': '180.76.76.76' # 百度短网址
+
+    # > 360
+    # refer: https://sdns.360.net/dnsPublic.html#course
+    '+.360.cn': 'https://doh.360.cn/dns-query' # 360安全中心
+    '+.360safe.com': 'https://doh.360.cn/dns-query' # 360安全卫士
+    '+.360kuai.com': 'https://doh.360.cn/dns-query' # 360快资讯
+    '+.so.com': 'https://doh.360.cn/dns-query' # 360搜索
+    '+.360webcache.com': 'https://doh.360.cn/dns-query' # 360网页快照服务
+    '+.qihuapi.com': 'https://doh.360.cn/dns-query' # 奇虎api
+    '+.qhimg.com': 'https://doh.360.cn/dns-query' # 360图床
+    '+.qhimgs.com': 'https://doh.360.cn/dns-query' # 360图床
+    '+.qhimgs?.com': 'https://doh.360.cn/dns-query' # 360图床
+    '+.qhmsg.com': 'https://doh.360.cn/dns-query' # 360
+    '+.qhres.com': 'https://doh.360.cn/dns-query' # 奇虎静态资源
+    '+.qhres?.com': 'https://doh.360.cn/dns-query' # 奇虎静态资源
+    '+.dhrest.com': 'https://doh.360.cn/dns-query' # 导航静态文件
+    '+.qhupdate.com': 'https://doh.360.cn/dns-query' # 360
+    '+.yunpan.cn': 'https://doh.360.cn/dns-query' # 360安全云盘
+    '+.yunpan.com.cn': 'https://doh.360.cn/dns-query' # 360安全云盘
+    '+.yunpan.com': 'https://doh.360.cn/dns-query' # 360安全云盘
+    'urlqh.cn': 'https://doh.360.cn/dns-query' # 360短网址
+
+    # > Bytedance
+    # refer: https://www.volcengine.com/docs/6758/179060
+    '+.amemv.com': '180.184.1.1' # 艾特迷
+    '+.bdxiguaimg.com': '180.184.1.1' # 西瓜 图片服务
+    '+.bdxiguastatic.com': '180.184.1.1' # 西瓜 静态资源
+    '+.byted-static.com': '180.184.1.1' # 字节跳动 UNPKG
+    '+.bytedance.*': '180.184.1.1' # 字节跳动
+    '+.bytedns.net': '180.184.1.1' # 字节跳动 DNS
+    '+.bytednsdoc.com': '180.184.1.1' # 字节跳动 CDN 文件存储
+    '+.bytegoofy.com': '180.184.1.1' # 字节跳动 Goofy
+    '+.byteimg.com': '180.184.1.1' # 字节跳动 图片服务
+    '+.bytescm.com': '180.184.1.1' # 字节跳动 SCM
+    '+.bytetos.com': '180.184.1.1' # 字节跳动 TOS
+    '+.bytexservice.com': '180.184.1.1' # 飞书企业服务平台
+    '+.douyin.com': '180.184.1.1' # 抖音
+    '+.douyinpic.com': '180.184.1.1' # 抖音 静态资源
+    '+.douyinstatic.com': '180.184.1.1' # 抖音 静态资源
+    '+.douyinvod.com': '180.184.1.1' # 抖音 静态资源
+    '+.feelgood.cn': '180.184.1.1' # FeelGood平台
+    '+.feiliao.com': '180.184.1.1' # 飞聊官网
+    '+.gifshow.com': '180.184.1.1' # 快手
+    '+.huoshan.com': '180.184.1.1' # 火山网
+    '+.huoshanzhibo.com': '180.184.1.1' # 火山直播
+    '+.ibytedapm.com': '180.184.1.1' # 抖音 dapm
+    '+.iesdouyin.com': '180.184.1.1' # 抖音 CDN
+    '+.ixigua.com': '180.184.1.1' # 西瓜视频
+    '+.kspkg.com': '180.184.1.1' # 快手
+    '+.pstatp.com': '180.184.1.1' # 抖音 静态资源
+    '+.snssdk.com': '180.184.1.1' # 今日头条
+    '+.toutiao.com': '180.184.1.1' # 今日头条
+    '+.toutiao13.com': '180.184.1.1' # 今日头条
+    '+.toutiao???.???': '180.184.1.1' # 今日头条 静态资源
+    '+.toutiaocloud.cn': '180.184.1.1' # 头条云
+    '+.toutiaocloud.com': '180.184.1.1' # 头条云
+    '+.toutiaopage.com': '180.184.1.1' # 今日头条 建站
+    '+.wukong.com': '180.184.1.1' # 悟空
+    '+.zijieapi.com': '180.184.1.1' # 字节跳动 API
+    '+.zijieimg.com': '180.184.1.1' # 字节跳动 图片服务
+    '+.zjbyte.com': '180.184.1.1' # 今日头条 网页版
+    '+.zjcdn.com': '180.184.1.1' # 字节跳动 CDN
+
+    # > BiliBili
+    'upos-sz-mirrorali.bilivideo.com': 'https://dns.alidns.com/dns-query' # BiliBili upos视频服务器（阿里云）
+    'upos-sz-mirrorali?.bilivideo.com': 'https://dns.alidns.com/dns-query' # BiliBili upos视频服务器（阿里云）
+    'upos-sz-mirrorali??.bilivideo.com': 'https://dns.alidns.com/dns-query' # BiliBili upos视频服务器（阿里云）
+    'upos-sz-mirrorbos.bilivideo.com': '180.76.76.76' # BiliBili upos视频服务器（百度云）
+    'upos-sz-mirrorcos.bilivideo.com': 'https://doh.pub/dns-query' # BiliBili upos视频服务器（腾讯云）
+    'upos-sz-mirrorcos?.bilivideo.com': 'https://doh.pub/dns-query' # BiliBili upos视频服务器（腾讯云）
+    'upos-sz-mirrorcos??.bilivideo.com': 'https://doh.pub/dns-query' # BiliBili upos视频服务器（腾讯云）
+    'upos-sz-upcdnbd??.bilivideo.com': '180.76.76.76' # BiliBili upos视频服务器（百度云）
+    'upos-sz-upcdntx.bilivideo.com': 'https://doh.pub/dns-query' # BiliBili upos视频服务器（腾讯云）
+
+    # > 🇹🇼 TWN
+    # 中华电信
+    '+.cht.com.tw': 'https://dns.hinet.net/dns-query' # 中华电信
+    '+.hinet.net': 'https://dns.hinet.net/dns-query' # 中华电信HiNet
+    '+.emome.net': 'https://dns.hinet.net/dns-query' # 中华电信emome
+    # So-net
+    '+.tw': 'https://dns.twnic.tw/dns-query' # TWNIC DNS
+    '+.taipei': 'https://dns.twnic.tw/dns-query' # TWNIC DNS
+
+    # > 🇺🇸 USA
+    # Hurricane Electric
+    '+.he.net': 'https://ordns.he.net/dns-query' # HE.net
   {% else %}
     {% if request.dns == "host" %}
 dns:
@@ -191,11 +334,12 @@ http-request https?:\/\/.*\.iqiyi\.com\/.*authcookie= script-path=https://raw.gi
 {% if request.target == "loon" %}
 
 [General]
-#!date = 2025-3-10
+#!date = 2025-11-15
 # IPV6 启动与否
-ipv6 = false
+ip-mode = ipv4-only
+ipv6-vif = off
 # udp 类的 dns 服务器，用,隔开多个服务器，system 表示系统 dns
-dns-server = system, 119.29.29.29, 223.5.5.5
+dns-server = system, 119.29.29.29, 223.5.5.5, 192.168.123.1
 # DNS over HTTPS服务器，用,隔开多个服务器
 # doh-server = https://223.5.5.5/resolve, https://sm2.doh.pub/dns-query
 # 当 UDP 的流量规则匹配到相关节点，但该节点不支持 UDP 或未未开启 UDP 转发时使用的策略，可选 DIRECT、REJECT
@@ -204,8 +348,8 @@ udp-fallback-mode = DIRECT
 domain-reject-mode = DNS
 # 在 DNS 阶段拒绝域名时采用的方式
 dns-reject-mode = LoopbackIP
-# 是否开启局域网代理访问
-allow-wifi-access = false
+# 是否开启局域网代理访问(其他 IOS 手机连接的时候需要再 HTTP 代理里面去设置)
+allow-wifi-access = true
 # 开启局域网访问后的 http 代理端口
 wifi-access-http-port = 7892
 # 开启局域网访问后的 socks5 代理端口
@@ -249,6 +393,7 @@ ssid-trigger = "INFINITY-WORLD":DIRECT,"nana":DIRECT,"cellular":RULE,"default":R
 [Proxy]
 
 [Remote Proxy]
+heicat = https://raw.githubusercontent.com/heicat1337/sub/refs/heads/main/proxy/heicat.yaml?token=GHSAT0AAAAAAC67QWQPSRBOCYXCVPYZBYKY2I7C3GA,parser-enabled = true,udp=false,fast-open=default,vmess-aead=true,skip-cert-verify=true,enabled=true,flexible-sni=true
 
 [Remote Filter]
 
@@ -356,6 +501,8 @@ FREE=select, direct, img-url=https://raw.githubusercontent.com/Orz-3/mini/master
 [Rewrite]
 
 [Host]
+# 改善 App Store下载速度
+iosapps.itunes.apple.com = iosapps.itunes.apple.com.download.ks-cdn.com
 
 [Script]
 
@@ -364,85 +511,90 @@ FREE=select, direct, img-url=https://raw.githubusercontent.com/Orz-3/mini/master
 # 解锁
 http://script.hub/file/_start_/https://raw.githubusercontent.com/Fvr9W/sub/master/rules/Unlock.qxrewrite/_end_/Unlock.plugin?type=qx-rewrite&target=loon-plugin, tag=「合集1」会员破解, enabled = true
 http://script.hub/file/_start_/https://raw.githubusercontent.com/yqc007/QuantumultX/master/LightBeautyCamCrack.js/_end_/LightBeautyCamCrack.plugin?type=qx-rewrite&target=loon-plugin, tag=「轻颜相机5.2.1」会员破解, enabled = false
-https://raw.githubusercontent.com/Keywos/rule/main/loon/TikTok.plugin, policy = GlobalMedia, tag=「TikTok」解锁区域, enabled = true
+https://raw.githubusercontent.com/Keywos/rule/main/loon/TikTok.plugin, policy = GlobalMedia, tag=「TikTok」解锁区域, enabled = false
 https://raw.githubusercontent.com/app2smile/rules/master/plugin/spotify.plugin, tag=「Spotify」解锁, enabled = true
+https://raw.githubusercontent.com/NobyDa/Script/master/Surge/JS/Polarr.js, tag=「泼辣修图」解锁, enabled = true
 # 功能增强
 https://github.com/BiliUniverse/Enhanced/releases/latest/download/BiliBili.Enhanced.plugin, tag=自定义「哔哩哔哩粉白」主界面, enabled = true
 https://github.com/BiliUniverse/Global/releases/latest/download/BiliBili.Global.plugin, tag=自动化「哔哩哔哩粉白」线路及全区搜索, enabled = true
 https://github.com/BiliUniverse/Redirect/releases/latest/download/BiliBili.Redirect.plugin, tag=重定向「哔哩哔哩」线路, enabled = true
 https://github.com/DualSubs/Universal/releases/latest/download/DualSubs.Universal.plugin, tag=「流媒体平台」字幕增强及双语模块, enabled = true
-https://github.com/DualSubs/YouTube/releases/latest/download/DualSubs.YouTube.plugin, tag=「YouTube」字幕增强及双语模块, enabled = true
 https://github.com/DualSubs/Spotify/releases/latest/download/DualSubs.Spotify.plugin, tag=「Spotify」歌词增强及双语模块, enabled = true
-https://kelee.one/Tool/Loon/Plugin/Google.plugin, tag=「Google」重定向, enabled = false
-https://kelee.one/Tool/Loon/Plugin/Block_HTTPDNS.plugin, tag=「HTTPDNS」禁止, enabled = true
-https://kelee.one/Tool/Loon/Plugin/LoonGallery.plugin, policy = B1gProxy, enabled = false
-https://kelee.one/Tool/Loon/Plugin/Fileball_mount.plugin, tag=「Fileball」挂载增强, enabled = false
-https://kelee.one/Tool/Loon/Plugin/JD_Price.plugin, tag=「京东」比价脚本, enabled = true
+https://kelee.one/Tool/Loon/Lpx/Google.lpx, tag=「Google」重定向, enabled = false
+https://kelee.one/Tool/Loon/Lpx/Block_HTTPDNS.lpx, tag=「HTTPDNS」禁止, enabled = true
+https://kelee.one/Tool/Loon/Lpx/LoonGallery.lpx, policy = B1gProxy, enabled = false
+https://kelee.one/Tool/Loon/Lpx/Fileball_mount.lpx, tag=「Fileball」挂载增强, enabled = false
+https://kelee.one/Tool/Loon/Lpx/JD_Price.lpx, tag=「京东」比价脚本, enabled = true
 https://github.com/NSRingo/WeatherKit/releases/latest/download/iRingo.WeatherKit.plugin, tag=自定义「天气Kit」功能, enabled = true
-https://github.com/NSRingo/Weather/raw/main/modules/Weather.plugin, tag=自定义「天气」功能, enabled = true
-https://github.com/NSRingo/GeoServices/releases/latest/download/iRingo.Location.plugin, tag=自定义「定位服务」功能, enabled = true
-https://github.com/NSRingo/GeoServices/releases/latest/download/iRingo.Maps.plugin, tag=自定义「地图」功能, enabled = true
-https://github.com/NSRingo/Siri/releases/latest/download/iRingo.Siri.plugin, tag=自定义「Siri与搜索」功能, enabled = true
+https://github.com/NSRingo/Weather/raw/main/modules/Weather.plugin, tag=自定义「天气」功能, enabled = false
+https://github.com/NSRingo/LocationService/releases/latest/download/iRingo.LocationService.plugin, tag=自定义「定位服务」功能, enabled = true
+https://github.com/NSRingo/Maps/releases/latest/download/iRingo.Maps.plugin, tag=自定义「地图」功能, enabled = true
+https://github.com/NSRingo/Siri/releases/latest/download/iRingo.Siri.plugin, tag=自定义「Siri与搜索」功能, enabled = false
 https://github.com/NSRingo/TV/releases/latest/download/iRingo.TV.plugin, tag=自定义「AppleTV」功能, enabled = true
 https://github.com/NSRingo/News/releases/latest/download/iRingo.News.plugin, policy = AutoNA 🇺🇲, tag=自定义「AppleNews」功能, enabled = true
-https://github.com/NSRingo/TestFlight/releases/latest/download/iRingo.TestFlight.plugin, tag=自定义「TestFlight」功能, enabled = true
-https://kelee.one/Tool/Loon/Plugin/QuickSearch.plugin, tag=「QuickSearch」增强, enabled = false
-https://kelee.one/Tool/Loon/Plugin/Node_detection_tool.plugin, tag=「节点」检测, enabled = true
-https://kelee.one/Tool/Loon/Plugin/WARP_Node_Query.plugin, tag=「WARP」节点查询, enabled = false
-https://kelee.one/Tool/Loon/Plugin/Weixin_external_links_unlock.plugin, tag=「微信」外链增强, enabled = true
+https://github.com/NSRingo/TestFlight/releases/latest/download/iRingo.TestFlight.plugin, tag=自定义「TestFlight」功能, enabled = false
+https://kelee.one/Tool/Loon/Lpx/QuickSearch.lpx, tag=「QuickSearch」增强, enabled = false
+https://kelee.one/Tool/Loon/Lpx/Node_detection_tool.lpx, tag=「节点」检测, enabled = true
+https://kelee.one/Tool/Loon/Lpx/WARP_Node_Query.lpx, tag=「WARP」节点查询, enabled = false
+https://kelee.one/Tool/Loon/Lpx/Weixin_external_links_unlock.lpx, tag=「微信」外链增强, enabled = true
 # 去广告合集
 http://script.hub/file/_start_/https://raw.githubusercontent.com/Fvr9W/sub/master/rules/Remix.snippet/_end_/Remix.plugin?type=qx-rewrite&target=loon-plugin, tag=「合集1」去广告, enabled = true
 https://raw.githubusercontent.com/RuCu6/Loon/main/Plugins/myblockads.plugin, tag=「合集2」去广告, enabled = false
-https://kelee.one/Tool/Loon/Plugin/BlockAdvertisers.plugin, tag=「合集3」去广告, enabled = true
-https://kelee.one/Tool/Loon/Plugin/Remove_ads_by_keli.plugin, tag=「合集4」去广告, enabled = true
+https://kelee.one/Tool/Loon/Lpx/BlockAdvertisers.lpx, tag=「合集3」去广告, enabled = true
+https://kelee.one/Tool/Loon/Lpx/Remove_ads_by_keli.lpx, tag=「合集4」去广告, enabled = true
 # 去广告单独
-https://kelee.one/Tool/Loon/Plugin/Aiinquiry_remove_ads.plugin, tag=「爱企查」去广告, enabled = true
-https://kelee.one/Tool/Loon/Plugin/Amap_remove_ads.plugin, tag=「高德地图」去广告, enabled = true
-https://kelee.one/Tool/Loon/Plugin/Baidu_input_method_remove_ads.plugin, tag=「百度输入法」去广告, enabled = true
-https://kelee.one/Tool/Loon/Plugin/BaiduNetDisk_remove_ads.plugin, tag=「百度网盘」去广告, enabled = true
-https://kelee.one/Tool/Loon/Plugin/BaiduMap_remove_ads.plugin, tag=「百度地图IPA版」去广告, enabled = false
-https://kelee.one/Tool/Loon/Plugin/Cainiao_remove_ads.plugin, tag=「菜鸟裹裹」去广告, enabled = true
-https://kelee.one/Tool/Loon/Plugin/DiDi_remove_ads.plugin, tag=「滴滴出行」去广告, enabled = true
-https://kelee.one/Tool/Loon/Plugin/DouBan_remove_ads.plugin, tag=「豆瓣7.76」去广告, enabled = false
-https://kelee.one/Tool/Loon/Plugin/Douyu_remove_ads.plugin, tag=「斗鱼」去广告, enabled = false
-https://kelee.one/Tool/Loon/Plugin/Daily_remove_ads.plugin, tag=「剑网3推栏」去广告, enabled = false
-https://kelee.one/Tool/Loon/Plugin/HKDouYin_remove_ads.plugin, tag=「香港抖音」去广告, enabled = false
-https://kelee.one/Tool/Loon/Plugin/FenBi_remove_ads.plugin, tag=「粉笔」去广告, enabled = true
-https://kelee.one/Tool/Loon/Plugin/FlyerTea_remove_ads.plugin, tag=「飞客茶馆」去广告, enabled = true
-https://kelee.one/Tool/Loon/Plugin/GaoDing_remove_ads.plugin, tag=「稿定设计」去广告, enabled = false
-https://kelee.one/Tool/Loon/Plugin/DragonRead_remove_ads.plugin, tag=「番茄小说」去广告, enabled = false
-https://kelee.one/Tool/Loon/Plugin/Himalaya_remove_ads.plugin, tag=「喜马拉雅」去广告, enabled = true
-https://kelee.one/Tool/Loon/Plugin/IThome_remove_ads.plugin, tag=「IThome」去广告, enabled = true
-https://kelee.one/Tool/Loon/Plugin/Keep_remove_ads.plugin, tag=「Keep」去广告, enabled = true
-https://kelee.one/Tool/Loon/Plugin/KOOK_remove_ads.plugin, tag=「Kook」去广告, enabled = true
-https://kelee.one/Tool/Loon/Plugin/KuaiShou_remove_ads.plugin, tag=「快手」去广告, enabled = true
-https://kelee.one/Tool/Loon/Plugin/MaFengWo_remove_ads.plugin, tag=「马蜂窝」去广告, enabled = true
-https://kelee.one/Tool/Loon/Plugin/NeteaseCloudMusic_remove_ads.plugin, tag=「网易云音乐」去广告, enabled = true
-https://kelee.one/Tool/Loon/Plugin/TV_Assistant_remove_ads.plugin, tag=「乐播投屏」去广告, enabled = true
-https://kelee.one/Tool/Loon/Plugin/QiDian_remove_ads.plugin, tag=「起点」去广告, enabled = true
-https://kelee.one/Tool/Loon/Plugin/QQMusic_remove_ads.plugin, tag=「QQ音乐」去广告, enabled = true
-https://kelee.one/Tool/Loon/Plugin/RedPaper_remove_ads.plugin, tag=「小红书」去广告, enabled = true
-https://kelee.one/Tool/Loon/Plugin/smzdm_remove_ads.plugin, tag=「什么值得买」去广告, enabled = true
-https://kelee.one/Tool/Loon/Plugin/Tieba_remove_ads.plugin, tag=「百度贴吧」去广告, enabled = true
-https://kelee.one/Tool/Loon/Plugin/Reddit_remove_ads.plugin, tag=「红迪」去广告, enabled = true
-https://kelee.one/Tool/Loon/Plugin/TubeMax_remove_ads.plugin, policy = B1gProxy, tag=「TubeMax」去广告, enabled = false
-https://kelee.one/Tool/Loon/Plugin/Weibo_remove_ads.plugin, tag=「微博国内版」去广告, enabled = true
-https://kelee.one/Tool/Loon/Plugin/Weixin_Official_Accounts_remove_ads.plugin, tag=「微信公众号」去广告, enabled = true
-https://kelee.one/Tool/Loon/Plugin/WexinMiniPrograms_Remove_ads.plugin, tag=「部分微信小程序」去广告, enabled = true
-https://kelee.one/Tool/Loon/Plugin/Snowball_remove_ads.plugin, tag=「雪球」去广告, enabled = true
-https://kelee.one/Tool/Loon/Plugin/Soul_remove_ads.plugin, tag=「Soul」去广告, enabled = true
-https://kelee.one/Tool/Loon/Plugin/PinDuoDuo_remove_ads.plugin, tag=「拼多多」去广告, enabled = true
-https://kelee.one/Tool/Loon/Plugin/XiaoHeiHe_remove_ads.plugin, tag=「小黑盒」去广告, enabled = true
-https://kelee.one/Tool/Loon/Plugin/FleaMarket_remove_ads.plugin, tag=「咸鱼」去广告, enabled = true
-https://kelee.one/Tool/Loon/Plugin/YouTube_remove_ads.plugin, tag=「YouTube」去广告, enabled = true
-https://kelee.one/Tool/Loon/Plugin/YY_Voice_remove_ads.plugin, tag=「YY」去广告, enabled = true
-https://kelee.one/Tool/Loon/Plugin/Zhihu_remove_ads.plugin, tag=「知乎」去广告, enabled = true
+https://kelee.one/Tool/Loon/Lpx/12306_remove_ads.lpx, tag=「12306」去广告, enabled = true
+https://kelee.one/Tool/Loon/Lpx/Aiinquiry_remove_ads.lpx, tag=「爱企查」去广告, enabled = true
+https://kelee.one/Tool/Loon/Lpx/Amap_remove_ads.lpx, tag=「高德地图」去广告, enabled = true
+https://kelee.one/Tool/Loon/Lpx/Baidu_input_method_remove_ads.lpx, tag=「百度输入法」去广告, enabled = true
+https://kelee.one/Tool/Loon/Lpx/BaiduNetDisk_remove_ads.lpx, tag=「百度网盘」去广告, enabled = true
+https://kelee.one/Tool/Loon/Lpx/BaiduMap_remove_ads.lpx, tag=「百度地图IPA版」去广告, enabled = false
+https://kelee.one/Tool/Loon/Lpx/Cainiao_remove_ads.lpx, tag=「菜鸟裹裹」去广告, enabled = true
+https://kelee.one/Tool/Loon/Lpx/DiDi_remove_ads.lpx, tag=「滴滴出行」去广告, enabled = true
+https://kelee.one/Tool/Loon/Lpx/DouBan_remove_ads.lpx, tag=「豆瓣7.76」去广告, enabled = false
+https://kelee.one/Tool/Loon/Lpx/Douyu_remove_ads.lpx, tag=「斗鱼」去广告, enabled = false
+https://kelee.one/Tool/Loon/Lpx/Daily_remove_ads.lpx, tag=「剑网3推栏」去广告, enabled = false
+https://kelee.one/Tool/Loon/Lpx/HKDouYin_remove_ads.lpx, tag=「香港抖音」去广告, enabled = false
+https://kelee.one/Tool/Loon/Lpx/FenBi_remove_ads.lpx, tag=「粉笔」去广告, enabled = true
+https://kelee.one/Tool/Loon/Lpx/FlyerTea_remove_ads.lpx, tag=「飞客茶馆」去广告, enabled = true
+https://kelee.one/Tool/Loon/Lpx/GaoDing_remove_ads.lpx, tag=「稿定设计」去广告, enabled = false
+https://kelee.one/Tool/Loon/Lpx/DragonRead_remove_ads.lpx, tag=「番茄小说」去广告, enabled = false
+https://kelee.one/Tool/Loon/Lpx/Himalaya_remove_ads.lpx, tag=「喜马拉雅」去广告, enabled = true
+https://kelee.one/Tool/Loon/Lpx/IThome_remove_ads.lpx, tag=「IThome」去广告, enabled = true
+https://kelee.one/Tool/Loon/Lpx/Keep_remove_ads.lpx, tag=「Keep」去广告, enabled = true
+https://kelee.one/Tool/Loon/Lpx/KOOK_remove_ads.lpx, tag=「Kook」去广告, enabled = true
+https://kelee.one/Tool/Loon/Lpx/KuaiShou_remove_ads.lpx, tag=「快手」去广告, enabled = true
+https://kelee.one/Tool/Loon/Lpx/MaFengWo_remove_ads.lpx, tag=「马蜂窝」去广告, enabled = true
+https://kelee.one/Tool/Loon/Lpx/NeteaseCloudMusic_remove_ads.lpx, tag=「网易云音乐」去广告, enabled = true
+https://kelee.one/Tool/Loon/Lpx/TV_Assistant_remove_ads.lpx, tag=「乐播投屏」去广告, enabled = true
+https://kelee.one/Tool/Loon/Lpx/QiDian_remove_ads.lpx, tag=「起点」去广告, enabled = true
+https://kelee.one/Tool/Loon/Lpx/QQMusic_remove_ads.lpx, tag=「QQ音乐」去广告, enabled = true
+https://kelee.one/Tool/Loon/Lpx/RedPaper_remove_ads.lpx, tag=「小红书」去广告, enabled = true
+https://kelee.one/Tool/Loon/Lpx/smzdm_remove_ads.lpx, tag=「什么值得买」去广告, enabled = true
+https://kelee.one/Tool/Loon/Lpx/Tieba_remove_ads.lpx, tag=「百度贴吧」去广告, enabled = true
+https://kelee.one/Tool/Loon/Lpx/Reddit_remove_ads.lpx, tag=「红迪」去广告, enabled = true
+https://kelee.one/Tool/Loon/Lpx/TubeMax_remove_ads.lpx, policy = B1gProxy, tag=「TubeMax」去广告, enabled = false
+https://kelee.one/Tool/Loon/Lpx/Weibo_remove_ads.lpx, tag=「微博国内版」去广告, enabled = true
+https://kelee.one/Tool/Loon/Lpx/Weixin_Official_Accounts_remove_ads.lpx, tag=「微信公众号」去广告, enabled = true
+https://kelee.one/Tool/Loon/Lpx/WexinMiniPrograms_Remove_ads.lpx, tag=「部分微信小程序」去广告, enabled = true
+https://kelee.one/Tool/Loon/Lpx/Snowball_remove_ads.lpx, tag=「雪球」去广告, enabled = true
+https://kelee.one/Tool/Loon/Lpx/Soul_remove_ads.lpx, tag=「Soul」去广告, enabled = true
+https://kelee.one/Tool/Loon/Lpx/PinDuoDuo_remove_ads.lpx, tag=「拼多多」去广告, enabled = true
+https://kelee.one/Tool/Loon/Lpx/XiaoHeiHe_remove_ads.lpx, tag=「小黑盒」去广告, enabled = true
+https://kelee.one/Tool/Loon/Lpx/XiaomiSpeaker_remove_ads.lpx, tag=「小米音响」去广告, enabled = true
+https://kelee.one/Tool/Loon/Lpx/FleaMarket_remove_ads.lpx, tag=「咸鱼」去广告, enabled = true
+https://kelee.one/Tool/Loon/Lpx/YY_Voice_remove_ads.lpx, tag=「YY」去广告, enabled = true
+https://kelee.one/Tool/Loon/Lpx/Zhihu_remove_ads.lpx, tag=「知乎」去广告, enabled = true
+https://kelee.one/Tool/Loon/Lpx/ValorantBible_remove_ads.lpx, tag=「掌上瓦」去广告, enabled = true
+https://kelee.one/Tool/Loon/Lpx/LOL_Bible_remove_ads.lpx, tag=「掌上撸」去广告, enabled = true
 # 视频网站
+https://kelee.one/Tool/Loon/Lpx/YouTube_remove_ads.lpx, tag=「YouTube」去广告, enabled = true
+https://github.com/DualSubs/YouTube/releases/latest/download/DualSubs.YouTube.plugin, tag=「YouTube」字幕增强及双语模块, enabled = true
 https://github.com/BiliUniverse/ADBlock/releases/latest/download/BiliBili.ADBlock.plugin, tag=「哔哩哔哩粉白」去广告, enabled = true
-https://kelee.one/Tool/Loon/Plugin/iQiYi_Video_remove_ads.plugin, tag=「爱奇艺」去广告, enabled = false
-https://kelee.one/Tool/Loon/Plugin/Tencent_Video_remove_ads.plugin, tag=「腾讯视频」去广告, enabled = false
-https://kelee.one/Tool/Loon/Plugin/MangoTV_remove_ads.plugin, tag=「芒果」去广告, enabled = false
-https://kelee.one/Tool/Loon/Plugin/YouKu_Video_remove_ads.plugin, tag=「优酷」去广告, enabled = false
+https://kelee.one/Tool/Loon/Lpx/iQiYi_Video_remove_ads.lpx, tag=「爱奇艺」去广告, enabled = true
+https://kelee.one/Tool/Loon/Lpx/Tencent_Video_remove_ads.lpx, tag=「腾讯视频」去广告, enabled = false
+https://kelee.one/Tool/Loon/Lpx/MangoTV_remove_ads.lpx, tag=「芒果」去广告, enabled = true
+https://kelee.one/Tool/Loon/Lpx/YouKu_Video_remove_ads.lpx, tag=「优酷」去广告, enabled = false
 # 签到
 http://script.hub/file/_start_/https://raw.githubusercontent.com/Fvr9W/sub/master/rules/GetCookie.conf/_end_/GetCookie.plugin?type=qx-rewrite&target=loon-plugin, tag=「合集」签到CK一体化, enabled = true
 # 基础
