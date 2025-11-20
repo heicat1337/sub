@@ -308,39 +308,12 @@ dns:
 
 {% if local.clash.new_field_name == "true" %}
 proxies: ~
-  {% for proxy in proxies %}
-  - name: "{{ proxy.name }}"
-    type: {{ proxy.type }}
-    server: "{{ proxy.server }}"
-    port: {{ proxy.port }}
-    {% if proxy.dialer-proxy %}
-    dialer-proxy: "{{ proxy.dialer-proxy }}"
-    {% elif proxy.dialer_proxy %}
-    dialer-proxy: "{{ proxy.dialer_proxy }}"
-    {% endif %}
-    {% if proxy.cipher %}
-    cipher: "{{ proxy.cipher }}"
-    {% endif %}
-    {% if proxy.password %}
-    password: "{{ proxy.password }}"
-    {% endif %}
-    {% if proxy.udp is defined %}
-    udp: {{ proxy.udp }}
-    {% endif %}
-    
-    {# 输出所有其他字段 #}
-    {% for key, value in proxy.items() %}
-    {% if key not in ['name', 'type', 'server', 'port', 'cipher', 'password', 'udp'] %}
-    {% if key == 'dialer_proxy' %}
-    dialer-proxy: "{{ value }}"
-    {% else %}
-    {{ key }}: {{ value }}
-    {% endif %}
-    {% endif %}
-    {% endfor %}
-  {% endfor %}
 proxy-groups: ~
 rules: ~
+{% else %}
+Proxy: ~
+Proxy Group: ~
+Rule: ~
 {% endif %}
 
 {% endif %}
