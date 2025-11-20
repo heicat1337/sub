@@ -1,0 +1,33 @@
+# 链式代理配置示例
+# 此文件展示了如何在 Clash 配置中添加链式代理
+
+proxies:
+  # 基础代理节点（上游节点，必须已存在）
+  - name: "🇭🇰 香港节点"
+    type: ss
+    server: "example.com"
+    port: 443
+    cipher: "aes-256-gcm"
+    password: "password"
+    udp: true
+
+  # 链式代理节点（使用 dialer-proxy 指向基础节点）
+  - name: "香港落地"
+    dialer-proxy: "🇭🇰 香港节点"  # 指向上面定义的基础节点
+    type: ss
+    server: "23.175.201.164"
+    port: 80
+    cipher: "2022-blake3-aes-128-gcm"
+    password: "UETm2mAIRiCaVJuIe1t0cA=="
+    udp: true
+
+  # 直连节点
+  - name: "直连"
+    type: direct
+
+# 使用说明：
+# 1. dialer-proxy 字段的值必须是已存在的代理节点名称
+# 2. 链式代理的工作原理：流量先通过 dialer-proxy 指定的节点，再通过当前节点
+# 3. 在上面的例子中，"香港落地" 节点的流量会先通过 "🇭🇰 香港节点"，再通过 "香港落地" 节点本身
+# 4. 确保基础节点（dialer-proxy 指向的节点）在链式代理节点之前定义
+

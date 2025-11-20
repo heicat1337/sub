@@ -1,0 +1,25 @@
+# 链式代理节点配置文件
+# 此文件包含链式代理节点定义，可在 pref.ini 中通过 add_proxy 参数引用
+
+proxies:
+  # 链式代理节点示例
+  # 注意：dialer-proxy 指向的节点必须已存在于订阅源中
+  - name: "香港落地"
+    dialer-proxy: "🇭🇰 香港节点"  # 请根据实际节点名称修改
+    type: ss
+    server: "23.175.201.164"
+    port: 80
+    cipher: "2022-blake3-aes-128-gcm"
+    password: "UETm2mAIRiCaVJuIe1t0cA=="
+    udp: true
+
+  # 如果需要添加更多链式代理节点，可以继续添加
+  # - name: "另一个链式节点"
+  #   dialer-proxy: "基础节点名称"
+  #   type: ss
+  #   server: "服务器地址"
+  #   port: 端口
+  #   cipher: "加密方式"
+  #   password: "密码"
+  #   udp: true
+
