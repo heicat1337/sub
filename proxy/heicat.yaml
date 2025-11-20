@@ -1,1 +1,4 @@
-
+proxies:
+  - {"name":"日本FX","dialer-proxy":"AutoJP 🇯🇵","type":"ss","server":"46.3.47.4","port":23142,"cipher":"2022-blake3-aes-128-gcm","password":"N2Y2MTQ0ZmVkZmUzODkzNA==:ZGI3NTZiYzMtMDllZi00NQ==","udp":true}
+  - {"name":"香港Lain","dialer-proxy":"AutoHK 🇭🇰","type":"ss","server":"pop.ac.hk.1.dlers.cloud","port":30899,"cipher":"aes-128-gcm","password":"db756bc3-09ef-4550-82e0-d3c4395e8348","udp":true}
+  - {"name":"台湾Akile","dialer-proxy":"AutoTW 🇨🇳","type":"ss","server":"akilehinetnat.645781.xyz","port":10490,"cipher":"aes-128-gcm","password":"db756bc3-09ef-4550-82e0-d3c4395e8348","udp":true}
