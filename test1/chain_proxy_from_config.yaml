@@ -1,9 +1,0 @@
-proxies:
-- name: 台湾Akile
-  dialer-proxy: AutoTW 🇨🇳
-  type: ss
-  server: akilehinetnat.645781.xyz
-  port: 10490
-  cipher: aes-128-gcm
-  password: db756bc3-09ef-4550-82e0-d3c4395e8348
-  udp: true
