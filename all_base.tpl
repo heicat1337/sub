@@ -393,7 +393,7 @@ ssid-trigger = "INFINITY-WORLD":DIRECT,"nana":DIRECT,"cellular":RULE,"default":R
 [Proxy]
 
 [Remote Proxy]
-
+heicat = https://raw.githubusercontent.com/heicat1337/sub/refs/heads/main/proxy/heicat.yaml
 [Remote Filter]
 
 [Proxy Group]
