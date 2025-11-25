@@ -26,15 +26,18 @@ Hijacking`select`[]REJECT`[]DIRECT
 Major`select`!!GROUPID=0!!^.*(Asia|Africa|America|Europe|Oceania|Antarctica).*$
 Minor`url-test`!!GROUPID=1!!^.*(Asia|Africa|America|Europe|Oceania|Antarctica).*$`http://cp.cloudflare.com/generate_204`60,,20
 AutoHK 🇭🇰`fallback`[]MajorHK 🇭🇰`[]MinorHK 🇭🇰`http://cp.cloudflare.com/generate_204`60,,20
+heicatHK 🇭🇰`url-test`!!GROUPID=2!!.*香港.*$`[]REJECT`http://cp.cloudflare.com/generate_204`60,,20
 MajorHK 🇭🇰`url-test`!!GROUPID=0!!.*香港.*$`[]REJECT`http://cp.cloudflare.com/generate_204`60,,20
 MinorHK 🇭🇰`url-test`!!GROUPID=1!!.*香港.*$`[]REJECT`http://cp.cloudflare.com/generate_204`60,,20
 AutoTW 🇨🇳`fallback`[]MajorTW 🇨🇳`[]MinorTW 🇨🇳`http://cp.cloudflare.com/generate_204`60,,20
+heicatTW 🇨🇳`url-test`!!GROUPID=2!!.*台湾.*$`[]REJECT`http://cp.cloudflare.com/generate_204`60,,20
 MajorTW 🇨🇳`url-test`!!GROUPID=0!!.*台湾.*$`[]REJECT`http://cp.cloudflare.com/generate_204`60,,20
 MinorTW 🇨🇳`url-test`!!GROUPID=1!!.*台湾.*$`[]REJECT`http://cp.cloudflare.com/generate_204`60,,20
 AutoKR 🇰🇷`fallback`[]MajorKR 🇰🇷`[]MinorKR 🇰🇷`http://cp.cloudflare.com/generate_204`60,,20
 MajorKR 🇰🇷`url-test`!!GROUPID=0!!.*韩国.*$`[]REJECT`http://cp.cloudflare.com/generate_204`60,,20
 MinorKR 🇰🇷`url-test`!!GROUPID=1!!.*韩国.*$`[]REJECT`http://cp.cloudflare.com/generate_204`60,,20
 AutoJP 🇯🇵`fallback`[]MajorJP 🇯🇵`[]MinorJP 🇯🇵`http://cp.cloudflare.com/generate_204`60,,20
+heicatJP 🇯🇵`url-test`!!GROUPID=2!!.*日本.*$`[]REJECT`http://cp.cloudflare.com/generate_204`60,,20
 MajorJP 🇯🇵`url-test`!!GROUPID=0!!.*日本.*$`[]REJECT`http://cp.cloudflare.com/generate_204`60,,20
 MinorJP 🇯🇵`url-test`!!GROUPID=1!!.*(日本|东京|大阪).*$`[]REJECT`http://cp.cloudflare.com/generate_204`60,,20
 AutoSG 🇸🇬`fallback`[]MajorSG 🇸🇬`[]MinorSG 🇸🇬`http://cp.cloudflare.com/generate_204`60,,20
