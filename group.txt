@@ -3,13 +3,13 @@ Premium`fallback`[]AutoHK 🇭🇰`[]AutoJP 🇯🇵`[]AutoNA 🇺🇲`http://cp
 B1gProxy`select`[]Premium`[]AutoHK 🇭🇰`[]MinorHK 🇭🇰`[]AutoTW 🇨🇳`[]AutoKR 🇰🇷`[]AutoJP 🇯🇵`[]AutoSG 🇸🇬`[]AutoEU 🇪🇺`[]AutoNA 🇺🇲`[]Major`[]Minor`[]heicat`[]DIRECT
 Other Games`select`[]B1gProxy`[]AutoHK 🇭🇰`[]MinorHK 🇭🇰`[]AutoTW 🇨🇳`[]AutoKR 🇰🇷`[]AutoJP 🇯🇵`[]AutoSG 🇸🇬`[]AutoEU 🇪🇺`[]AutoNA 🇺🇲`[]Major`[]Minor`[]heicat`[]DIRECT
 Hax`select`[]AutoNA 🇺🇲`[]AutoJP 🇯🇵`[]B1gProxy`[]Other Games`[]DIRECT
-Crypto`select`[]AutoJP 🇯🇵`[]B1gProxy`[]Other Games`[]DIRECT
+Crypto`select`[]AutoJP 🇯🇵`[]heicatTW 🇨🇳`[]Other Games`[]DIRECT
 Trading`select`[]B1gProxy`[]Other Games`[]AutoHK 🇭🇰`[]MinorHK 🇭🇰`[]AutoTW 🇨🇳`[]AutoKR 🇰🇷`[]AutoJP 🇯🇵`[]AutoSG 🇸🇬`[]AutoEU 🇪🇺`[]AutoNA 🇺🇲`[]DIRECT
 Discord`select`[]B1gProxy`[]Other Games`[]AutoHK 🇭🇰`[]MinorHK 🇭🇰`[]AutoTW 🇨🇳`[]AutoKR 🇰🇷`[]AutoJP 🇯🇵`[]AutoSG 🇸🇬`[]AutoEU 🇪🇺`[]AutoNA 🇺🇲`[]DIRECT
-Telegram`select`[]B1gProxy`[]AutoHK 🇭🇰`[]MinorHK 🇭🇰`[]AutoSG 🇸🇬`[]MinorSG 🇸🇬`[]AutoNA 🇺🇲
+Telegram`select`[]B1gProxy`[]AutoHK 🇭🇰`[]heicatHK 🇭🇰`[]AutoSG 🇸🇬`[]MinorSG 🇸🇬`[]AutoNA 🇺🇲
 Spotify`select`[]B1gProxy`[]Other Games`[]AutoHK 🇭🇰`[]MinorHK 🇭🇰`[]AutoTW 🇨🇳`[]AutoKR 🇰🇷`[]AutoJP 🇯🇵`[]AutoSG 🇸🇬`[]AutoEU 🇪🇺`[]AutoNA 🇺🇲`[]DIRECT
-Netflix`select`[]B1gProxy`[]Other Games`[]AutoHK 🇭🇰`[]MinorHK 🇭🇰`[]AutoTW 🇨🇳`[]MinorTW 🇨🇳`[]AutoKR 🇰🇷`[]AutoJP 🇯🇵`[]MinorJP 🇯🇵`[]AutoSG 🇸🇬`[]MinorSG 🇸🇬`[]AutoEU 🇪🇺`[]AutoNA 🇺🇲`[]DIRECT
-GlobalMedia`select`[]B1gProxy`[]Other Games`[]AutoHK 🇭🇰`[]MinorHK 🇭🇰`[]AutoTW 🇨🇳`[]AutoKR 🇰🇷`[]AutoJP 🇯🇵`[]AutoSG 🇸🇬`[]AutoEU 🇪🇺`[]AutoNA 🇺🇲`[]DIRECT
+Netflix`select`[]heicatHK 🇭🇰`[]Other Games`[]AutoHK 🇭🇰`[]MinorHK 🇭🇰`[]AutoTW 🇨🇳`[]MinorTW 🇨🇳`[]AutoKR 🇰🇷`[]AutoJP 🇯🇵`[]MinorJP 🇯🇵`[]AutoSG 🇸🇬`[]MinorSG 🇸🇬`[]AutoEU 🇪🇺`[]AutoNA 🇺🇲`[]DIRECT
+GlobalMedia`select`[]B1gProxy`[]Other Games`[]AutoHK 🇭🇰`[]heicatHK 🇭🇰`[]AutoTW 🇨🇳`[]AutoKR 🇰🇷`[]AutoJP 🇯🇵`[]AutoSG 🇸🇬`[]AutoEU 🇪🇺`[]AutoNA 🇺🇲`[]DIRECT
 Microsoft`select`[]AutoNA 🇺🇲`[]B1gProxy`[]Other Games`[]Major`[]Minor`[]DIRECT
 CaseFarm`url-test`[]AutoHK 🇭🇰`[]MinorTW 🇨🇳`[]AutoKR 🇰🇷`[]MinorJP 🇯🇵`[]MinorSG 🇸🇬`http://cp.cloudflare.com/generate_204`60,,20
 SteamChina`select`[]DIRECT`[]B1gProxy`[]Other Games`[]REJECT`.*(土耳其|阿根廷).*$
