@@ -1,5 +1,6 @@
-B1gProxy`select`[]ALL`[]DIRECT
-CaseFarm`select`[]AutoHK 🇭🇰`[]AutoTW 🇨🇳`[]AutoKR 🇰🇷`[]AutoJP 🇯🇵`[]AutoSG 🇸🇬`[]DIRECT
+B1gProxy`select`[]ALL`[]轮询`[]DIRECT
+CaseFarm`select`[]轮询`[]AutoHK 🇭🇰`[]AutoTW 🇨🇳`[]AutoKR 🇰🇷`[]AutoJP 🇯🇵`[]AutoSG 🇸🇬`[]DIRECT
+轮询`load-balance`!!GROUPID=0!!.*`http://www.google.com/generate_204`300`round-robin
 ALL`url-test`!!GROUPID=0!!^.*(家宽|日本|Japan).*$`http://cp.cloudflare.com/generate_204`60,,20
 AutoHK 🇭🇰`url-test`!!GROUPID=0!!.*香港.*$`http://cp.cloudflare.com/generate_204`30,,10
 AutoTW 🇨🇳`url-test`!!GROUPID=0!!.*台湾.*$`http://cp.cloudflare.com/generate_204`30,,10
