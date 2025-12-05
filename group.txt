@@ -11,7 +11,7 @@ Spotify`select`[]B1gProxy`[]Other Games`[]AutoHK 🇭🇰`[]MinorHK 🇭🇰`[]A
 Netflix`select`[]heicatHK 🇭🇰`[]Other Games`[]AutoHK 🇭🇰`[]MinorHK 🇭🇰`[]AutoTW 🇨🇳`[]MinorTW 🇨🇳`[]AutoKR 🇰🇷`[]AutoJP 🇯🇵`[]MinorJP 🇯🇵`[]AutoSG 🇸🇬`[]MinorSG 🇸🇬`[]AutoEU 🇪🇺`[]AutoNA 🇺🇲`[]DIRECT
 GlobalMedia`select`[]B1gProxy`[]Other Games`[]AutoHK 🇭🇰`[]heicatHK 🇭🇰`[]AutoTW 🇨🇳`[]AutoKR 🇰🇷`[]AutoJP 🇯🇵`[]AutoSG 🇸🇬`[]heicatTW 🇨🇳`[]AutoNA 🇺🇲`[]DIRECT
 Microsoft`select`[]AutoNA 🇺🇲`[]B1gProxy`[]Other Games`[]Major`[]Minor`[]DIRECT
-CaseFarm`load-balance`!!GROUPID=0!!.*香港.*$`round-robin`http://cp.cloudflare.com/generate_204`30,,20
+CaseFarm`load-balance`!!GROUPID=[0-1]!!.*香港.*$`round-robin`http://cp.cloudflare.com/generate_204`30,,20
 SteamChina`select`[]DIRECT`[]B1gProxy`[]Other Games`[]REJECT`.*(土耳其|阿根廷).*$
 SteamGlobal`select`[]B1gProxy`[]DIRECT`[]Other Games`[]CaseFarm`[]REJECT`.*(土耳其|阿根廷).*$
 Blizzard`select`[]Other Games`[]Major`[]Minor`[]DIRECT
