@@ -7,3 +7,4 @@ AutoTW 🇨🇳`url-test`!!GROUPID=0!!.*台湾.*$`http://cp.cloudflare.com/gener
 AutoKR 🇰🇷`url-test`!!GROUPID=0!!.*韩国.*$`http://cp.cloudflare.com/generate_204`30,,10
 AutoJP 🇯🇵`url-test`!!GROUPID=0!!.*日本.*$`http://cp.cloudflare.com/generate_204`30,,10
 AutoSG 🇸🇬`url-test`!!GROUPID=0!!.*新加坡.*$`http://cp.cloudflare.com/generate_204`30,,10
+AutoNA 🇺🇲`url-test`!!GROUPID=0!!.*(硅谷|西雅图|美国).*$`[]REJECT`http://cp.cloudflare.com/generate_204`60,,30
