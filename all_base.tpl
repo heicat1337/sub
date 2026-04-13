@@ -150,6 +150,7 @@ dns:
     '+.ptrecord.com': '8.8.8.8'
     '+.bing.cn': '1.1.1.1'
     '+.bing.com': '1.1.1.1'
+    '+.cloud-nodes.com': '124.221.68.73:1053'
 
     # > Modify Contents
     'blog.google': '119.29.29.29' # Google Blog
