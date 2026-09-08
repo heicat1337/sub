@@ -27,7 +27,11 @@ EDITABLE_FILES = {
     "pref":          {"path": BASE_DIR / "pref.ini",          "label": "转换配置",     "lang": "ini"},
     "group":         {"path": BASE_DIR / "group.txt",         "label": "代理组",       "lang": "text"},
     "rulelist":      {"path": BASE_DIR / "RuleList.txt",      "label": "规则列表",     "lang": "text"},
+    "basetpl":       {"path": BASE_DIR / "all_base.tpl",      "label": "Loon 插件",    "lang": "ini"},
 }
+
+# Loon 插件所在的基础模板文件（[Plugin] 段）
+PLUGIN_BASE_FILE = BASE_DIR / "all_base.tpl"
 
 READONLY_FILES = {
     "merged": {"path": BASE_DIR / "merged_config.yaml", "label": "合并后配置", "lang": "yaml"},
@@ -333,6 +337,229 @@ def api_subscription_delete(group_id: int):
     })
 
 
+# ---------- Loon 插件管理 ----------
+
+# 段落头形如 [Plugin] / [MITM] / [general]
+_SECTION_HEADER_RE = re.compile(r"^\[[^\]]+\]\s*$")
+
+
+def _parse_plugin_entry(line: str) -> dict | None:
+    """解析一行插件。格式: url[, policy = xxx][, tag = 备注][, enabled = true/false]
+
+    tag / policy 中不含逗号，插件 url 的查询串用 & 分隔，所以按逗号切分是安全的。
+    """
+    s = line.strip()
+    if not s or s.startswith("#"):
+        return None
+    parts = [p.strip() for p in s.split(",")]
+    if not parts or not parts[0]:
+        return None
+    entry = {"url": parts[0], "policy": None, "tag": None, "enabled": True}
+    for kv in parts[1:]:
+        if "=" not in kv:
+            continue
+        key, _, value = kv.partition("=")
+        key = key.strip().lower()
+        value = value.strip()
+        if key == "policy":
+            entry["policy"] = value or None
+        elif key == "tag":
+            entry["tag"] = value or None
+        elif key == "enabled":
+            entry["enabled"] = value.lower() != "false"
+    return entry
+
+
+def _plugin_entry_to_line(entry: dict) -> str:
+    """把插件 dict 序列化回一行，字段顺序: url, policy, tag, enabled。"""
+    parts = [entry["url"].strip()]
+    if entry.get("policy"):
+        parts.append(f"policy = {str(entry['policy']).strip()}")
+    if entry.get("tag"):
+        parts.append(f"tag = {str(entry['tag']).strip()}")
+    parts.append(f"enabled = {'true' if entry.get('enabled', True) else 'false'}")
+    return ", ".join(parts)
+
+
+def _plugin_section_bounds(lines: list[str]) -> tuple[int | None, int | None]:
+    """返回 [Plugin] 段正文的 [start, end) 行号区间（不含段头，end 为下一个段头行）。"""
+    start = end = None
+    for i, line in enumerate(lines):
+        if line.strip() == "[Plugin]":
+            start = i + 1
+            continue
+        if start is not None and _SECTION_HEADER_RE.match(line.strip()):
+            end = i
+            break
+    if start is not None and end is None:
+        end = len(lines)
+    return start, end
+
+
+def _load_plugins() -> tuple[list[str], int | None, int | None, list[dict]]:
+    """读取 all_base.tpl，解析 [Plugin] 段。
+
+    返回 (lines, start, end, plugins)。每个 plugin 附带 index（段内插件序号）、
+    category（上方最近的 # 注释）、line_no（在 lines 中的行号）。
+    """
+    text = PLUGIN_BASE_FILE.read_text(encoding="utf-8") if PLUGIN_BASE_FILE.exists() else ""
+    lines = text.split("\n")
+    start, end = _plugin_section_bounds(lines)
+    plugins: list[dict] = []
+    if start is None:
+        return lines, start, end, plugins
+    category = ""
+    idx = 0
+    for line_no in range(start, end):
+        s = lines[line_no].strip()
+        if not s:
+            continue
+        if s.startswith("#"):
+            category = s.lstrip("#").strip()
+            continue
+        entry = _parse_plugin_entry(lines[line_no])
+        if entry is None:
+            continue
+        entry.update({"index": idx, "category": category, "line_no": line_no})
+        plugins.append(entry)
+        idx += 1
+    return lines, start, end, plugins
+
+
+def _write_plugin_lines(lines: list[str]) -> None:
+    PLUGIN_BASE_FILE.write_text("\n".join(lines), encoding="utf-8", newline="\n")
+
+
+def _plugins_payload(ok: bool = False) -> dict:
+    _, _, _, plugins = _load_plugins()
+    categories = list(dict.fromkeys(p["category"] for p in plugins if p["category"]))
+    payload = {"plugins": plugins, "categories": categories}
+    if ok:
+        payload["ok"] = True
+    return payload
+
+
+def _validate_plugin_fields(url: str, tag: str, policy: str, category: str) -> str | None:
+    if any(ch in (tag + policy + category) for ch in "\r\n`"):
+        return "备注 / 策略 / 分类 不能包含换行或反引号"
+    if any(ch in (tag + policy + category) for ch in ","):
+        return "备注 / 策略 / 分类 不能包含逗号"
+    if url and "," in url:
+        return "插件链接不能包含逗号"
+    return None
+
+
+@app.route("/api/plugins")
+def api_plugins_list():
+    if not PLUGIN_BASE_FILE.exists():
+        return jsonify({"error": f"未找到 {PLUGIN_BASE_FILE.name}"}), 404
+    _, start, _, _ = _load_plugins()
+    if start is None:
+        return jsonify({"error": "all_base.tpl 中未找到 [Plugin] 段"}), 400
+    return jsonify(_plugins_payload())
+
+
+@app.route("/api/plugins", methods=["POST"])
+def api_plugin_add():
+    data = request.get_json(silent=True) or {}
+    url = (data.get("url") or "").strip()
+    tag = (data.get("tag") or "").strip()
+    policy = (data.get("policy") or "").strip()
+    category = (data.get("category") or "").strip()
+    enabled = bool(data.get("enabled", True))
+
+    if not url:
+        return jsonify({"error": "请填写插件链接"}), 400
+    if not (url.startswith("http://") or url.startswith("https://")):
+        return jsonify({"error": "插件链接需以 http:// 或 https:// 开头"}), 400
+    err = _validate_plugin_fields(url, tag, policy, category)
+    if err:
+        return jsonify({"error": err}), 400
+
+    lines, start, end, plugins = _load_plugins()
+    if start is None:
+        return jsonify({"error": "all_base.tpl 中未找到 [Plugin] 段"}), 400
+    if any(p["url"] == url for p in plugins):
+        return jsonify({"error": "该插件链接已存在"}), 400
+
+    new_line = _plugin_entry_to_line({
+        "url": url, "tag": tag or None, "policy": policy or None, "enabled": enabled,
+    })
+
+    insert_at = end
+    if category:
+        cat_line = None
+        for i in range(start, end):
+            s = lines[i].strip()
+            if s.startswith("#") and s.lstrip("#").strip() == category:
+                cat_line = i
+                break
+        if cat_line is not None:
+            # 插到该分类下最后一个插件行之后
+            last = cat_line
+            for j in range(cat_line + 1, end):
+                s = lines[j].strip()
+                if s.startswith("#"):
+                    break
+                if s:
+                    last = j
+            insert_at = last + 1
+        else:
+            # 新分类：在段尾追加注释头 + 插件行
+            lines[end:end] = [f"# {category}", new_line]
+            _write_plugin_lines(lines)
+            return jsonify(_plugins_payload(ok=True))
+
+    lines[insert_at:insert_at] = [new_line]
+    _write_plugin_lines(lines)
+    return jsonify(_plugins_payload(ok=True))
+
+
+@app.route("/api/plugins/<int:index>", methods=["PUT"])
+def api_plugin_update(index: int):
+    data = request.get_json(silent=True) or {}
+    lines, start, _, plugins = _load_plugins()
+    if start is None:
+        return jsonify({"error": "all_base.tpl 中未找到 [Plugin] 段"}), 400
+    target = next((p for p in plugins if p["index"] == index), None)
+    if not target:
+        return jsonify({"error": "插件不存在"}), 404
+
+    url = (data.get("url", target["url"]) or "").strip() or target["url"]
+    tag = (data.get("tag", target["tag"]) or "").strip()
+    policy = (data.get("policy", target["policy"]) or "").strip()
+    enabled = bool(data.get("enabled", target["enabled"]))
+
+    if not (url.startswith("http://") or url.startswith("https://")):
+        return jsonify({"error": "插件链接需以 http:// 或 https:// 开头"}), 400
+    err = _validate_plugin_fields(url, tag, policy, "")
+    if err:
+        return jsonify({"error": err}), 400
+    if any(p["url"] == url and p["index"] != index for p in plugins):
+        return jsonify({"error": "该插件链接已存在"}), 400
+
+    lines[target["line_no"]] = _plugin_entry_to_line({
+        "url": url, "tag": tag or None, "policy": policy or None, "enabled": enabled,
+    })
+    _write_plugin_lines(lines)
+    return jsonify(_plugins_payload(ok=True))
+
+
+@app.route("/api/plugins/<int:index>", methods=["DELETE"])
+def api_plugin_delete(index: int):
+    lines, start, _, plugins = _load_plugins()
+    if start is None:
+        return jsonify({"error": "all_base.tpl 中未找到 [Plugin] 段"}), 400
+    target = next((p for p in plugins if p["index"] == index), None)
+    if not target:
+        return jsonify({"error": "插件不存在"}), 404
+    del lines[target["line_no"]]
+    _write_plugin_lines(lines)
+    return jsonify({**_plugins_payload(ok=True), "deleted": {
+        "url": target["url"], "tag": target["tag"], "index": index,
+    }})
+
+
 @app.route("/api/run", methods=["POST"])
 def api_run():
     with _state_lock:
@@ -593,6 +820,38 @@ textarea[readonly] { background: var(--panel); }
 }
 .subscription-form .wide { grid-column: 1 / -1; }
 .subscription-actions { grid-column: 1 / -1; display: flex; gap: 8px; justify-content: flex-end; }
+.plugin-panel {
+  display: none; padding: 10px 12px; background: var(--panel); border-bottom: 1px solid var(--border);
+  grid-template-columns: minmax(300px, 1fr) minmax(280px, 360px); gap: 10px; flex-shrink: 0;
+}
+.plugin-panel.show { display: grid; }
+.plugin-list {
+  min-height: 180px; max-height: 320px; overflow-y: auto; border: 1px solid var(--border);
+  background: var(--bg);
+}
+.plugin-row {
+  width: 100%; padding: 7px 9px; border-bottom: 1px solid var(--border); display: grid;
+  grid-template-columns: 14px minmax(120px, 1fr) 84px 84px; gap: 8px; align-items: center;
+  color: var(--text); background: transparent; cursor: pointer; text-align: left; border-radius: 0;
+}
+.plugin-row:hover { background: var(--panel-2); }
+.plugin-row.active { background: #094771; }
+.plugin-row span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.plugin-row .meta { color: var(--muted); font-size: 11px; }
+.plugin-row .pdot { width: 9px; height: 9px; border-radius: 50%; background: var(--err); }
+.plugin-row.on .pdot { background: var(--ok); }
+.plugin-row.off { opacity: 0.5; }
+.plugin-empty { padding: 24px 12px; color: var(--muted); text-align: center; }
+.plugin-form { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-content: start; }
+.plugin-form label { display: grid; gap: 4px; color: var(--muted); font-size: 11px; }
+.plugin-form label.wide { grid-column: 1 / -1; }
+.plugin-form input, .plugin-form select {
+  width: 100%; background: var(--bg); color: var(--text); border: 1px solid var(--border);
+  border-radius: 3px; padding: 6px 8px; font-size: 12px; font-family: inherit;
+}
+.plugin-form label.checkbox { flex-direction: row; align-items: center; gap: 6px; display: flex; color: var(--text); font-size: 12px; }
+.plugin-form label.checkbox input { width: auto; }
+.plugin-actions { grid-column: 1 / -1; display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
 .right {
   width: 380px; background: var(--panel); border-left: 1px solid var(--border);
   display: flex; flex-direction: column; flex-shrink: 0;
@@ -698,6 +957,41 @@ textarea[readonly] { background: var(--panel); }
         </div>
       </div>
     </div>
+    <div class="plugin-panel" id="plugin-panel">
+      <div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; gap:8px;">
+          <strong>Loon 插件</strong>
+          <input id="plugin-filter" placeholder="搜索备注 / 链接 / 分类"
+                 style="flex:1; max-width:220px; background:var(--bg); color:var(--text); border:1px solid var(--border); border-radius:3px; padding:4px 8px; font-size:12px;">
+          <span class="meta" id="plugin-count" style="color:var(--muted); font-size:11px;">0/0</span>
+        </div>
+        <div class="plugin-list" id="plugin-list"></div>
+        <div style="margin-top:6px; color:var(--muted); font-size:11px;">绿点=启用，灰点=停用。点击某行载入右侧表单，可改备注/策略/开关。改动写入 all_base.tpl 的 [Plugin] 段。</div>
+      </div>
+      <div class="plugin-form">
+        <label class="wide">插件链接
+          <input id="plugin-url" placeholder="https://example.com/xxx.plugin">
+        </label>
+        <label>备注 (tag)
+          <input id="plugin-tag" placeholder="例如 「YouTube」去广告">
+        </label>
+        <label>策略 (可选)
+          <input id="plugin-policy" placeholder="例如 B1gProxy">
+        </label>
+        <label>分类
+          <input id="plugin-category" list="plugin-categories" placeholder="例如 去广告单独">
+          <datalist id="plugin-categories"></datalist>
+        </label>
+        <label class="checkbox" style="align-self:end;">
+          <input type="checkbox" id="plugin-enabled" checked> 启用
+        </label>
+        <div class="plugin-actions">
+          <button class="danger" id="btn-plugin-delete" disabled>删除选中</button>
+          <button class="secondary" id="btn-plugin-update" disabled>更新选中</button>
+          <button id="btn-plugin-add">新增插件</button>
+        </div>
+      </div>
+    </div>
     <textarea id="editor" spellcheck="false" placeholder="加载中..."></textarea>
   </div>
   <div class="right">
@@ -745,6 +1039,9 @@ const state = {
   dirty: new Set(),
   selectedGroupIndex: null,
   selectedSubscriptionIndex: null,
+  selectedPluginIndex: null,
+  plugins: [],
+  pluginFilter: '',
   logOffset: 0,
   runPolling: false,
 };
@@ -770,6 +1067,112 @@ function currentIsProxyGroup() {
 
 function currentIsSubscriptions() {
   return state.currentKey === 'subscriptions';
+}
+
+function currentIsPlugins() {
+  return state.currentKey === 'basetpl';
+}
+
+function renderPluginCategories(cats) {
+  const dl = document.getElementById('plugin-categories');
+  dl.innerHTML = '';
+  for (const c of cats || []) {
+    const o = document.createElement('option');
+    o.value = c;
+    dl.appendChild(o);
+  }
+}
+
+function renderPlugins() {
+  const panel = document.getElementById('plugin-panel');
+  if (!currentIsPlugins()) {
+    panel.classList.remove('show');
+    return;
+  }
+  panel.classList.add('show');
+  const list = document.getElementById('plugin-list');
+  const filter = (state.pluginFilter || '').trim().toLowerCase();
+  const items = state.plugins.filter(p => !filter
+    || (p.tag || '').toLowerCase().includes(filter)
+    || (p.url || '').toLowerCase().includes(filter)
+    || (p.category || '').toLowerCase().includes(filter)
+    || (p.policy || '').toLowerCase().includes(filter));
+  document.getElementById('plugin-count').textContent = `${items.length}/${state.plugins.length}`;
+  list.innerHTML = '';
+  if (!state.plugins.length) {
+    const e = document.createElement('div');
+    e.className = 'plugin-empty';
+    e.textContent = '暂无插件';
+    list.appendChild(e);
+  } else if (!items.length) {
+    const e = document.createElement('div');
+    e.className = 'plugin-empty';
+    e.textContent = '无匹配结果';
+    list.appendChild(e);
+  }
+  for (const p of items) {
+    const row = document.createElement('button');
+    row.type = 'button';
+    row.className = 'plugin-row ' + (p.enabled ? 'on' : 'off') + (state.selectedPluginIndex === p.index ? ' active' : '');
+    row.title = p.url;
+    const dot = document.createElement('span');
+    dot.className = 'pdot';
+    const name = document.createElement('span');
+    name.textContent = p.tag || p.url;
+    const cat = document.createElement('span');
+    cat.className = 'meta';
+    cat.textContent = p.category || '';
+    const pol = document.createElement('span');
+    pol.className = 'meta';
+    pol.textContent = p.policy || '';
+    row.appendChild(dot);
+    row.appendChild(name);
+    row.appendChild(cat);
+    row.appendChild(pol);
+    row.onclick = () => selectPlugin(p.index);
+    list.appendChild(row);
+  }
+  const has = state.selectedPluginIndex != null && state.plugins.some(p => p.index === state.selectedPluginIndex);
+  document.getElementById('btn-plugin-delete').disabled = !has;
+  document.getElementById('btn-plugin-update').disabled = !has;
+}
+
+async function loadPlugins() {
+  try {
+    const data = await api('/api/plugins');
+    state.plugins = data.plugins || [];
+    renderPluginCategories(data.categories || []);
+    renderPlugins();
+  } catch (e) {
+    toast('加载插件失败: ' + e.message, 'err');
+  }
+}
+
+function selectPlugin(index) {
+  state.selectedPluginIndex = index;
+  const p = state.plugins.find(x => x.index === index);
+  if (p) {
+    document.getElementById('plugin-url').value = p.url || '';
+    document.getElementById('plugin-tag').value = p.tag || '';
+    document.getElementById('plugin-policy').value = p.policy || '';
+    document.getElementById('plugin-category').value = p.category || '';
+    document.getElementById('plugin-enabled').checked = !!p.enabled;
+  }
+  renderPlugins();
+}
+
+async function reloadBasetplEditor() {
+  try {
+    const data = await api('/api/file/basetpl');
+    if (currentIsPlugins()) document.getElementById('editor').value = data.content;
+    state.dirty.delete('basetpl');
+    renderTabs();
+  } catch (e) {}
+}
+
+function applyPluginResult(data) {
+  state.plugins = data.plugins || [];
+  renderPluginCategories(data.categories || []);
 }
 
 function markDirty(key) {
@@ -1021,8 +1424,11 @@ async function selectFile(key) {
     editor.readOnly = data.readonly;
     state.selectedGroupIndex = null;
     state.selectedSubscriptionIndex = null;
+    state.selectedPluginIndex = null;
     renderSubscriptions();
     renderProxyGroups();
+    renderPlugins();
+    if (currentIsPlugins()) loadPlugins();
     const info = document.getElementById('file-info');
     const mt = data.mtime ? new Date(data.mtime * 1000).toLocaleString() : '文件不存在';
     info.textContent = `${data.label} · ${data.lang}${data.readonly ? ' · 只读' : ''} · ${mt}`;
@@ -1116,6 +1522,82 @@ document.getElementById('btn-group-add').onclick = () => {
 
 document.getElementById('btn-group-delete').onclick = deleteSelectedProxyGroup;
 
+document.getElementById('plugin-filter').addEventListener('input', (e) => {
+  state.pluginFilter = e.target.value;
+  renderPlugins();
+});
+
+document.getElementById('btn-plugin-add').onclick = async () => {
+  try {
+    if (state.dirty.has('basetpl')) await saveCurrentEditor(true);
+    const body = {
+      url: document.getElementById('plugin-url').value.trim(),
+      tag: document.getElementById('plugin-tag').value.trim(),
+      policy: document.getElementById('plugin-policy').value.trim(),
+      category: document.getElementById('plugin-category').value.trim(),
+      enabled: document.getElementById('plugin-enabled').checked,
+    };
+    const data = await api('/api/plugins', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(body),
+    });
+    applyPluginResult(data);
+    state.selectedPluginIndex = null;
+    document.getElementById('plugin-url').value = '';
+    document.getElementById('plugin-tag').value = '';
+    await reloadBasetplEditor();
+    renderPlugins();
+    toast('插件已新增', 'ok');
+  } catch (e) {
+    toast(e.message, 'err');
+  }
+};
+
+document.getElementById('btn-plugin-update').onclick = async () => {
+  if (state.selectedPluginIndex == null) return;
+  try {
+    if (state.dirty.has('basetpl')) await saveCurrentEditor(true);
+    const body = {
+      url: document.getElementById('plugin-url').value.trim(),
+      tag: document.getElementById('plugin-tag').value.trim(),
+      policy: document.getElementById('plugin-policy').value.trim(),
+      enabled: document.getElementById('plugin-enabled').checked,
+    };
+    const data = await api(`/api/plugins/${state.selectedPluginIndex}`, {
+      method: 'PUT',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(body),
+    });
+    applyPluginResult(data);
+    await reloadBasetplEditor();
+    renderPlugins();
+    toast('插件已更新', 'ok');
+  } catch (e) {
+    toast(e.message, 'err');
+  }
+};
+
+document.getElementById('btn-plugin-delete').onclick = async () => {
+  if (state.selectedPluginIndex == null) return;
+  const p = state.plugins.find(x => x.index === state.selectedPluginIndex);
+  if (!confirm(`确定删除插件「${p ? (p.tag || p.url) : ''}」？`)) return;
+  try {
+    if (state.dirty.has('basetpl')) await saveCurrentEditor(true);
+    const data = await api(`/api/plugins/${state.selectedPluginIndex}`, {method: 'DELETE'});
+    applyPluginResult(data);
+    state.selectedPluginIndex = null;
+    document.getElementById('plugin-url').value = '';
+    document.getElementById('plugin-tag').value = '';
+    document.getElementById('plugin-policy').value = '';
+    await reloadBasetplEditor();
+    renderPlugins();
+    toast('插件已删除', 'ok');
+  } catch (e) {
+    toast(e.message, 'err');
+  }
+};
+
 document.getElementById('btn-save').onclick = async () => {
   if (!state.currentKey) return;
   const content = document.getElementById('editor').value;
@@ -1128,6 +1610,7 @@ document.getElementById('btn-save').onclick = async () => {
     state.dirty.delete(state.currentKey);
     renderTabs();
     toast('已保存', 'ok');
+    if (currentIsPlugins()) loadPlugins();
     // 刷新 mtime
     const data = await api(`/api/file/${state.currentKey}`);
     const info = document.getElementById('file-info');
