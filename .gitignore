@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Secrets & local credentials
+.gist_token
+gist_config.json
+subscriptions.txt
+casefarm.yaml
+.env
+
+# Generated configs (contain node credentials)
+loon_config.conf
+merged_config.yaml
+debug_response.yaml
+test_config.yaml
+
+# Local toolchains / clones (large, not source)
+subconverter/
+casefarm_repo/
+
+# Editor / agent
+.claude/
+.agents/
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db

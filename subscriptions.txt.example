@@ -1,0 +1,5 @@
+# 订阅链接配置文件
+# 每行一个订阅链接，可选行尾标签：URL #标签名
+# 标签需与 group.txt 中的代理组前缀一致（如 MESL、bocchi）
+
+https://example.com/subscribe?token=YOUR_TOKEN #MESL
