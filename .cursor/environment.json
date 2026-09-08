@@ -1,0 +1,21 @@
+{
+  "name": "proxy config panel",
+  "user": "ubuntu",
+  "install": "bash .cursor/install.sh",
+  "terminals": [
+    {
+      "name": "subconverter",
+      "command": "cd subconverter && ./subconverter",
+      "description": "Local subconverter backend on http://localhost:25500 used by merge_proxy_config.py."
+    },
+    {
+      "name": "web-panel",
+      "command": "python3 web_server.py --host 0.0.0.0 --port 8080",
+      "description": "Flask config panel on http://localhost:8080 to edit configs and run the merge script."
+    }
+  ],
+  "ports": [
+    { "name": "web-panel", "port": 8080 },
+    { "name": "subconverter", "port": 25500 }
+  ]
+}
