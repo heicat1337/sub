@@ -116,10 +116,12 @@ def sync_subconverter_config() -> None:
     """
     sub_dir = Path(SUBCONVERTER_DIR)
     config_dir = sub_dir / 'config'
+    base_dir = sub_dir / 'base'
     if not sub_dir.exists():
         print(f"警告: 未找到 {SUBCONVERTER_DIR} 目录，跳过 subconverter 配置同步")
         return
     config_dir.mkdir(parents=True, exist_ok=True)
+    base_dir.mkdir(parents=True, exist_ok=True)
 
     copies = [
         (Path('group.txt'), sub_dir / 'group.txt'),
@@ -128,13 +130,16 @@ def sync_subconverter_config() -> None:
         (Path('RuleList.txt'), config_dir / 'RuleList.txt'),
         (Path(LOCAL_CONVERTER_CONFIG), sub_dir / LOCAL_CONVERTER_CONFIG),
         (Path(LOCAL_CONVERTER_CONFIG), config_dir / LOCAL_CONVERTER_CONFIG),
+        # loon_rule_base=base/all_base.tpl 指向 subconverter 自带的模板；同步项目根目录的
+        # all_base.tpl（含 [Plugin] 段），面板里改的插件才会写进生成的 loon_config.conf。
+        (Path('all_base.tpl'), base_dir / 'all_base.tpl'),
     ]
     for src, dst in copies:
         if not src.exists():
             print(f"警告: 未找到 {src}，跳过同步到 {dst}")
             continue
         shutil.copyfile(src, dst)
-    print("已同步 subconverter 配置文件: group.txt / pref.ini / RuleList.txt")
+    print("已同步 subconverter 配置文件: group.txt / pref.ini / RuleList.txt / all_base.tpl")
 
 
 def load_yaml_file(file_path: str) -> Dict[str, Any]:
