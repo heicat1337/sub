@@ -1,0 +1,7 @@
+# PlayStation — 由 merge_proxy_config 从去重后的首次命中规则导出
+# 数量：4
+
+DOMAIN-SUFFIX,ps4.online.gran-turismo.com
+DOMAIN-SUFFIX,online.scee.com
+DOMAIN-SUFFIX,gtsport.api.wwsga.me
+DOMAIN-SUFFIX,fromsoftware-game.net

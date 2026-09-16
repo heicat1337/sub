@@ -1,0 +1,32 @@
+# Blizzard — 由 merge_proxy_config 从去重后的首次命中规则导出
+# 数量：29
+
+DOMAIN-SUFFIX,iw8-bnet-auth3.prod.demonware.net
+DOMAIN-SUFFIX,iw8-bnet-loginqueue.prod.demonware.net
+DOMAIN-SUFFIX,prod.umbrella.demonware.net
+DOMAIN-SUFFIX,prod.uno.demonware.net
+DOMAIN-SUFFIX,pipes-prod-glutton.public.aws.demonware.net
+DOMAIN-SUFFIX,auth3.prod.demonware.net
+DOMAIN-SUFFIX,mw-lobby-1.prod.demonware.net
+DOMAIN-SUFFIX,demonware.net
+DOMAIN-SUFFIX,kr.version.battle.net
+DOMAIN-SUFFIX,kr.actual.battle.net
+DOMAIN-SUFFIX,kr.battle.net
+DOMAIN-SUFFIX,alert-kr.battle.net
+DOMAIN-SUFFIX,kr.api.blizzard.com
+DOMAIN-SUFFIX,tw.version.battle.net
+DOMAIN-SUFFIX,tw.actual.battle.net
+DOMAIN-SUFFIX,tw.battle.net
+DOMAIN-SUFFIX,alert-tw.battle.net
+DOMAIN-SUFFIX,tw.api.blizzard.com
+DOMAIN-SUFFIX,us.version.battle.net
+DOMAIN-SUFFIX,us.actual.battle.net
+DOMAIN-SUFFIX,us.battle.net
+DOMAIN-SUFFIX,alert-us.battle.net
+DOMAIN-SUFFIX,us.api.blizzard.com
+DOMAIN-KEYWORD,callofduty
+DOMAIN-SUFFIX,cod-assets.cdn.blizzard.com
+DOMAIN-SUFFIX,oauth.battle.net
+DOMAIN-SUFFIX,telemetry-in.battle.net
+DOMAIN-SUFFIX,content-ui.battle.net
+DOMAIN-SUFFIX,prod.depot.battle.net

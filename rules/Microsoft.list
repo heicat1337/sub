@@ -1,0 +1,58 @@
+# 微软加速（Xbox / Bing / Store），不含 Copilot/OpenAI 通用 SaaS
+# 源：Suyu6 Microsoft.list，已去掉被 Hax 覆盖的 AI 段
+
+# Bing
+DOMAIN-SUFFIX,bing.com
+DOMAIN-SUFFIX,bing.cn
+DOMAIN-SUFFIX,bingapis.com
+
+# OneDrive
+DOMAIN-SUFFIX,bn1301.storage.live.com
+
+# Microsoft Store Images
+DOMAIN-SUFFIX,store-images.s-microsoft.com
+
+# Azure TTS
+DOMAIN-SUFFIX,tts.speech.microsoft.com
+
+# dotnet
+DOMAIN-SUFFIX,dotnetcli.blob.core.windows.net
+
+# Xbox
+DOMAIN-SUFFIX,sf.prod.athena.msrareservices.com
+DOMAIN-SUFFIX,sfbridge.prod.athena.msrareservices.com
+DOMAIN-SUFFIX,athenaprod.maelstrom.gameservices.xboxlive.com
+DOMAIN-SUFFIX,profile.xboxlive.com
+DOMAIN-SUFFIX,rta.xboxlive.com
+DOMAIN-SUFFIX,gameserverds.xboxlive.com
+DOMAIN-SUFFIX,sessiondirectory.xboxlive.com
+DOMAIN-SUFFIX,social.xboxlive.com
+DOMAIN-SUFFIX,notify.xboxlive.com
+DOMAIN-SUFFIX,userpresence.xboxlive.com
+DOMAIN-SUFFIX,images-eds-ssl.xboxlive.com
+DOMAIN-SUFFIX,peoplehub.xboxlive.com
+DOMAIN-SUFFIX,achievements.xboxlive.com
+DOMAIN-SUFFIX,privacy.xboxlive.com
+DOMAIN-SUFFIX,x1ds.xboxlive.com
+DOMAIN-SUFFIX,titlestorage.xboxlive.com
+
+# Sea of Thieves
+IP-CIDR,52.241.142.45/32,no-resolve
+DOMAIN-SUFFIX,xblcxplatqos-ause-9-18-2-0.cloudapp.net
+DOMAIN-SUFFIX,pfmsqosprod.westus.cloudapp.azure.com
+
+# Bing 可视化 / 定位（不含 ChatGPT SaaS）
+DOMAIN,api.msn.com
+DOMAIN,assets.msn.com
+DOMAIN,gateway.bingviz.microsoft.net
+DOMAIN,gateway.bingviz.microsoftapp.net
+DOMAIN,in.appcenter.ms
+DOMAIN,location.microsoft.com
+DOMAIN,odc.officeapps.live.com
+DOMAIN,r.bing.com
+DOMAIN,self.events.data.microsoft.com
+DOMAIN,services.bingapis.com
+DOMAIN,www.bing.com
+DOMAIN-SUFFIX,api.microsoftapp.net
+DOMAIN-SUFFIX,bing-shopping.microsoft-falcon.io
+DOMAIN-SUFFIX,edgeservices.bing.com

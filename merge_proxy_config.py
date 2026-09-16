@@ -134,12 +134,27 @@ def sync_subconverter_config() -> None:
         # all_base.tpl（含 [Plugin] 段），面板里改的插件才会写进生成的 loon_config.conf。
         (Path('all_base.tpl'), base_dir / 'all_base.tpl'),
     ]
+    rules_dir = sub_dir / 'rules'
+    rules_dir.mkdir(parents=True, exist_ok=True)
+    copies.extend([
+        (Path('Crypto.list'), rules_dir / 'Crypto.list'),
+        (Path('+rules.txt'), rules_dir / 'plus.list'),
+        (Path('rules/Hax.list'), rules_dir / 'Hax.list'),
+        (Path('rules/Microsoft.list'), rules_dir / 'Microsoft.list'),
+        (Path('rules/GlobalMedia.list'), rules_dir / 'GlobalMedia.list'),
+    ])
+    rulesets_src = Path('rulesets')
+    rulesets_dst = sub_dir / 'rulesets'
+    if rulesets_src.is_dir():
+        rulesets_dst.mkdir(parents=True, exist_ok=True)
+        for src in sorted(rulesets_src.glob('*.list')):
+            copies.append((src, rulesets_dst / src.name))
     for src, dst in copies:
         if not src.exists():
             print(f"警告: 未找到 {src}，跳过同步到 {dst}")
             continue
         shutil.copyfile(src, dst)
-    print("已同步 subconverter 配置文件: group.txt / pref.ini / RuleList.txt / all_base.tpl")
+    print("已同步 subconverter 配置文件: group.txt / pref.ini / RuleList.txt / all_base.tpl / rules/")
 
 
 def load_yaml_file(file_path: str) -> Dict[str, Any]:
@@ -316,6 +331,216 @@ def merge_proxies(downloaded_config: Dict[str, Any], local_config: Dict[str, Any
             print(f"成功添加 {len(added_rules)} 条本地规则到配置文件")
     
     return downloaded_config
+
+
+def _split_clash_rule(rule: Any) -> tuple[str, str, str, str] | None:
+    if isinstance(rule, list):
+        parts = [str(p).strip() for p in rule if p is not None]
+    elif isinstance(rule, str):
+        line = rule.strip()
+        if not line or line.startswith('#'):
+            return None
+        parts = [p.strip() for p in line.split(',')]
+    else:
+        return None
+    if len(parts) < 2:
+        return None
+    extra = ','.join(parts[3:]) if len(parts) > 3 else ''
+    return parts[0].upper(), parts[1], parts[2] if len(parts) > 2 else '', extra
+
+
+def _host_suffixes(host: str) -> List[str]:
+    parts = host.lower().lstrip('.').split('.')
+    return ['.'.join(parts[i:]) for i in range(len(parts)) if ''.join(parts[i:])]
+
+
+def dedupe_dead_rules(config: Dict[str, Any]) -> int:
+    """删掉永远走不到的重复规则。
+
+    精确重复、已被更宽 DOMAIN-SUFFIX 覆盖、或已被更早 KEYWORD 命中且策略不同
+    的条目都不会再生效，留着只会在客户端分流列表里显示成重复。
+    """
+    rules = config.get('rules') or []
+    if not rules:
+        return 0
+
+    kept: List[Any] = []
+    seen_keys: set[tuple[str, str]] = set()
+    suffixes: set[str] = set()
+    keywords: List[tuple[str, str]] = []
+
+    dropped = 0
+    for rule in rules:
+        parsed = _split_clash_rule(rule)
+        if parsed is None:
+            kept.append(rule)
+            continue
+        typ, payload, policy, _extra = parsed
+        key = (typ, payload.lower())
+        if key in seen_keys:
+            dropped += 1
+            continue
+
+        host = payload.lower().lstrip('.')
+        if typ in ('DOMAIN', 'DOMAIN-SUFFIX'):
+            if any(suf in suffixes for suf in _host_suffixes(host)):
+                dropped += 1
+                continue
+            if any(kw and kw in host and kw_pol != policy for kw, kw_pol in keywords):
+                dropped += 1
+                continue
+        elif typ == 'DOMAIN-KEYWORD':
+            if any(kw and kw in host and kw_pol != policy for kw, kw_pol in keywords):
+                dropped += 1
+                continue
+
+        seen_keys.add(key)
+        kept.append(rule)
+        if typ == 'DOMAIN-SUFFIX' and host:
+            suffixes.add(host)
+        elif typ == 'DOMAIN-KEYWORD' and host:
+            keywords.append((host, policy))
+
+    if dropped:
+        config['rules'] = kept
+        print(f"已删除永远不会命中的重复规则: {dropped} 条（剩余 {len(kept)}）")
+    return dropped
+
+
+RULESET_DIR = Path('rulesets')
+
+# 生成后的规则集顺序：先专组，再苹果直连，再大名单，最后进程直连 + GEOIP
+RULESET_FILES = [
+    ('Crypto', 'Crypto.list'),
+    ('Hax', 'Hax.list'),
+    ('Blizzard', 'Blizzard.list'),
+    ('PlayStation', 'PlayStation.list'),
+    ('Riot', 'Riot.list'),
+    ('Rockstar', 'Rockstar.list'),
+    ('SteamRegionCheck', 'SteamRegionCheck.list'),
+    ('SteamGlobal', 'SteamGlobal.list'),
+    ('SteamChina', 'SteamChina.list'),
+    ('Ubisoft', 'Ubisoft.list'),
+    ('Microsoft', 'Microsoft.list'),
+    ('Spotify', 'Spotify.list'),
+    ('Netflix', 'Netflix.list'),
+    ('GlobalMedia', 'GlobalMedia.list'),
+    ('Telegram', 'Telegram.list'),
+    ('Discord', 'Discord.list'),
+    ('Hijacking', 'Hijacking.list'),
+    ('SougouInput', 'SougouInput.list'),
+    ('PrivateTracker', 'PrivateTracker.list'),
+    ('GlobalGameDownload', 'GlobalGameDownload.list'),
+    ('Direct', 'Direct.list'),
+    ('B1gProxy', 'B1gProxy.list'),
+    ('DirectProcess', 'DirectProcess.list'),
+]
+
+
+def _ruleset_line(typ: str, payload: str, extra: str) -> str:
+    parts = [typ, payload]
+    if extra:
+        parts.append(extra)
+    return ','.join(parts)
+
+
+def _classify_export_bucket(typ: str, payload: str, policy: str) -> str | None:
+    if typ in ('GEOIP', 'MATCH', 'FINAL'):
+        return None
+    if policy == 'DIRECT':
+        if typ == 'PROCESS-NAME':
+            return 'DirectProcess'
+        if 'steamserver.net' in payload.lower():
+            return 'SteamRegionCheck'
+        return 'Direct'
+    if policy == 'B1gProxy' or policy.startswith('Auto'):
+        return 'B1gProxy'
+    return policy or None
+
+
+def export_rulesets(config: Dict[str, Any], dest: Path = RULESET_DIR) -> Dict[str, int]:
+    """把去重后的首次命中规则按策略组写成可上传 GitHub 的 list。"""
+    dest.mkdir(parents=True, exist_ok=True)
+    buckets: Dict[str, List[str]] = {name: [] for name, _ in RULESET_FILES}
+    for rule in config.get('rules') or []:
+        parsed = _split_clash_rule(rule)
+        if parsed is None:
+            continue
+        typ, payload, policy, extra = parsed
+        bucket = _classify_export_bucket(typ, payload, policy)
+        if not bucket:
+            continue
+        if bucket not in buckets:
+            buckets[bucket] = []
+        buckets[bucket].append(_ruleset_line(typ, payload, extra))
+
+    counts: Dict[str, int] = {}
+    for name, filename in RULESET_FILES:
+        lines = buckets.get(name) or []
+        path = dest / filename
+        header = [
+            f'# {name} — 由 merge_proxy_config 从去重后的首次命中规则导出',
+            f'# 数量：{len(lines)}',
+            '',
+        ]
+        path.write_text('\n'.join(header + lines) + ('\n' if lines else ''), encoding='utf-8', newline='\n')
+        counts[name] = len(lines)
+        print(f"  rulesets/{filename}: {len(lines)}")
+    known = {name for name, _ in RULESET_FILES}
+    for name, lines in buckets.items():
+        if name not in known and lines:
+            print(f"  警告: 未导出策略组 {name}: {len(lines)}")
+    return counts
+
+
+def write_rulelist_from_rulesets(dest: Path = Path('RuleList.txt')) -> None:
+    rows = []
+    for name, filename in RULESET_FILES:
+        group = 'DIRECT' if name in ('SteamRegionCheck', 'Direct', 'DirectProcess') else name
+        rows.append(f'{group},rulesets/{filename}')
+    rows.append('DIRECT,[]GEOIP,LAN')
+    rows.append('DIRECT,[]GEOIP,CN')
+    rows.append('Other Games,[]FINAL')
+    dest.write_text('\n'.join(rows) + '\n', encoding='utf-8', newline='\n')
+    print(f"已写入 {dest}（{len(rows)} 行）")
+
+
+def ensure_wechat_tun_bypass(config: Dict[str, Any]) -> None:
+    """确保 Clash/Mihomo 配置排除微信进程，避免 TUN 下传图卡住。
+
+    即使客户端在 GUI 里开 TUN，profile 里的 exclude-process 仍会生效。
+    """
+    wechat_procs = ['Weixin.exe', 'WeChatAppEx.exe', 'WeChat.exe']
+    config['find-process-mode'] = 'always'
+    tun = config.setdefault('tun', {})
+    if not isinstance(tun, dict):
+        tun = {}
+        config['tun'] = tun
+    procs = tun.get('exclude-process') or []
+    if isinstance(procs, str):
+        procs = [procs]
+    elif not isinstance(procs, list):
+        procs = list(procs)
+    for name in wechat_procs:
+        if name not in procs:
+            procs.append(name)
+    tun['exclude-process'] = procs
+
+    dns = config.get('dns')
+    if isinstance(dns, dict):
+        filters = dns.get('fake-ip-filter') or []
+        if isinstance(filters, str):
+            filters = [filters]
+        elif not isinstance(filters, list):
+            filters = list(filters)
+        for f in (
+            '+.weixin.qq.com', '+.wechat.com', '+.wx.qq.com',
+            '+.qpic.cn', '+.servicewechat.com', '+.tenpay.com',
+        ):
+            if f not in filters:
+                filters.append(f)
+        dns['fake-ip-filter'] = filters
+    print(f"已配置 TUN 排除微信进程: {', '.join(wechat_procs)}")
 
 
 def save_yaml(config: Dict[str, Any], output_path: str):
@@ -1053,6 +1278,12 @@ def main():
     # 合并代理配置
     print("正在合并代理配置...")
     merged_config = merge_proxies(downloaded_config, local_config)
+    ensure_wechat_tun_bypass(merged_config)
+    dedupe_dead_rules(merged_config)
+    print("正在导出 GitHub 规则集 ...")
+    export_rulesets(merged_config)
+    write_rulelist_from_rulesets()
+    sync_subconverter_config()
 
     # 保存合并后的配置文件
     save_yaml(merged_config, args.output)

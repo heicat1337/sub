@@ -1,0 +1,33 @@
+# DirectProcess — 由 merge_proxy_config 从去重后的首次命中规则导出
+# 数量：30
+
+PROCESS-NAME,SunloginClient.exe
+PROCESS-NAME,uu.exe
+PROCESS-NAME,UUBooster.exe
+PROCESS-NAME,uu_netbar.exe
+PROCESS-NAME,kkproxy.exe
+PROCESS-NAME,kkacceler.exe
+PROCESS-NAME,kkacchelper.exe
+PROCESS-NAME,ss_privoxy.exe
+PROCESS-NAME,kkredirector.exe
+PROCESS-NAME,newkkredirector.exe
+PROCESS-NAME,baomiao.exe
+PROCESS-NAME,AskLink.exe
+PROCESS-NAME,QiYou.exe
+PROCESS-NAME,1.exe
+PROCESS-NAME,2.exe
+PROCESS-NAME,3.exe
+PROCESS-NAME,4.exe
+PROCESS-NAME,5.exe
+PROCESS-NAME,6.exe
+PROCESS-NAME,7.exe
+PROCESS-NAME,8.exe
+PROCESS-NAME,9.exe
+PROCESS-NAME,10.exe
+PROCESS-NAME,11.exe
+PROCESS-NAME,12.exe
+PROCESS-NAME,Weixin.exe
+PROCESS-NAME,WeChatAppEx.exe
+PROCESS-NAME,todesk.exe
+PROCESS-NAME,oopz.exe
+PROCESS-NAME,cloudmusic.exe
